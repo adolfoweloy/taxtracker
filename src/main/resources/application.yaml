@@ -1,0 +1,8 @@
+spring:
+  application.name: taxtracker
+  datasource:
+    url: jdbc:postgresql://localhost:5432/taxtracker
+    username: taxtracker
+    password: taxtracker
+  flyway:
+    enabled: true
