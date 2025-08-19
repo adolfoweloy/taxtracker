@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+>
+<head>
+    <title>Report</title>
+</head>
+<section class="section" layout:fragment="page-content">
+
+    <h3>Balance at [[${balanceBeforeAt}]]</h3>
+    <table class="table" th:if="${balanceBefore}">
+        <thead>
+        <tr>
+            <th scope="col">Product</th>
+            <th scope="col">Certificate</th>
+            <th scope="col">Issued at</th>
+            <th scope="col">Maturity Date</th>
+            <th scope="col">Principal</th>
+            <th scope="col">Interest</th>
+            <th scope="col">Estimated tax</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="balance : ${balanceBefore}">
+            <td>[[${balance.product}]]</td>
+            <td>[[${balance.certificate}]]</td>
+            <td>[[${balance.issuedAt}]]</td>
+            <td>[[${balance.maturityDate}]]</td>
+            <td>[[${balance.principal}]]</td>
+            <td>[[${balance.interest}]]</td>
+            <td>[[${balance.estimatedBrlTax}]]</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <hr/>
+
+    <h3>Current balance at [[${balanceNowAt}]]</h3>
+    <table class="table" th:if="${balanceNow}">
+        <thead>
+        <tr>
+            <th scope="col">Product</th>
+            <th scope="col">Certificate</th>
+            <th scope="col">Issued at</th>
+            <th scope="col">Maturity Date</th>
+            <th scope="col">Principal</th>
+            <th scope="col">Interest</th>
+            <th scope="col">Estimated tax</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="balance : ${balanceNow}">
+            <td>[[${balance.product}]]</td>
+            <td>[[${balance.certificate}]]</td>
+            <td>[[${balance.issuedAt}]]</td>
+            <td>[[${balance.maturityDate}]]</td>
+            <td>[[${balance.principal}]]</td>
+            <td>[[${balance.interest}]]</td>
+            <td>[[${balance.estimatedBrlTax}]]</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</html>
