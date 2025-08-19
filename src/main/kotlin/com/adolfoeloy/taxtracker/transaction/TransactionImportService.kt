@@ -1,16 +1,25 @@
 package com.adolfoeloy.taxtracker.transaction
 
 import com.adolfoeloy.taxtracker.balance.BalanceRequest
+import com.adolfoeloy.taxtracker.product.Product
+import com.adolfoeloy.taxtracker.product.ProductRepository
+import com.adolfoeloy.taxtracker.product.Products
 import com.opencsv.bean.CsvToBeanBuilder
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.io.InputStreamReader
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Service
-class TransactionImportService {
+class TransactionImportService(
+    private val productRepository: ProductRepository,
+    private val transactionRepository: TransactionRepository
+) {
 
-    fun processCsvFile(filePath: MultipartFile) {
+    fun processCsvFile(filePath: MultipartFile): Int {
+        var rowsProcessed = 0
+
         // Validate file
         if (filePath.isEmpty) {
             throw IllegalArgumentException("File is empty")
@@ -26,11 +35,37 @@ class TransactionImportService {
         val result = readCsvWithOpenCsv(filePath)
 
         result.forEach { transactionRequest ->
-            // Here you would typically process each transactionRequest
-            // For example, saving it to a database or performing some calculations
-            println("Processing transaction: $transactionRequest")
+            val product = productRepository
+                .findByCertificate(transactionRequest.certificate) ?:
+            productRepository.save<Product>(
+                Products.Companion.createProduct(
+                    name = transactionRequest.product,
+                    certificate = transactionRequest.certificate,
+                    issuedAt = transactionRequest.issuedAt,
+                    matureAt = transactionRequest.matureAt
+                ))
+
+            transactionRepository.save(
+                Transaction().apply {
+                    this.productId = product.id
+                    this.percent = transactionRequest.percentage.toCents()
+                    this.principal = transactionRequest.principal.toCents()
+                    this.paymentDate = transactionRequest.paymentAt
+                        .let { LocalDate.parse(it, formatter) }
+                    this.redemption = transactionRequest.redemption.toCents()
+                    this.interest = transactionRequest.interest.toCents()
+                    this.iof = transactionRequest.iof.toCents()
+                    this.brTax = transactionRequest.brTax.toCents()
+                    this.credited = transactionRequest.credit.toCents()
+                    this.description = transactionRequest.description
+                    this.brToAuForex = transactionRequest.brToAuForex.toCents()
+                }
+            )
+
+            rowsProcessed++
         }
 
+        return rowsProcessed
     }
 
     private fun readCsvWithOpenCsv(filePath: MultipartFile): List<TransactionRequest> {
@@ -39,5 +74,18 @@ class TransactionImportService {
             .withSeparator(';')
             .build()
             .parse()
+    }
+
+    private fun String.toCents(): Int {
+        val parts = this.split(".")
+        if (parts.size > 2) {
+            throw IllegalArgumentException("Invalid decimal format: $this")
+        }
+        val formatted = if (parts.size == 1) {
+            "$this.00"
+        } else {
+            this
+        }
+        return formatted.replace(".", "").toInt()
     }
 }

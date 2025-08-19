@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import java.time.LocalDate
 
 @Entity
 @Table(name = "transaction")
@@ -19,7 +20,7 @@ class Transaction {
     var productId: Int = 0
 
     @Column(name = "payment_date")
-    var paymentDate: String = ""
+    var paymentDate: LocalDate = LocalDate.now()
 
     var percent: Int = 0
 
