@@ -13,13 +13,13 @@ interface BalanceRepository : JpaRepository<Balance, Int> {
      * Finds a Balance by its product certificate and previous balance date.
      *
      * @param certificate the certificate of the product.
-     * @param balanceAt the balance date.
+     * @param balanceDate the balance date.
      * @return the Balance if found, or null if not found.
      */
-    @Query("SELECT b FROM Balance b JOIN b.product p WHERE p.certificate = :certificate AND b.balanceAt = :balanceAt")
+    @Query("SELECT b FROM Balance b JOIN b.product p WHERE p.certificate = :certificate AND b.balanceDate = :balanceDate")
     fun findByProductCertificateAndBalanceAt(
         @Param("certificate") certificate: String,
-        @Param("balanceAt") balanceAt: LocalDate
+        @Param("balanceDate") balanceDate: LocalDate
     ): Balance?
 
 }

@@ -35,8 +35,8 @@ class Balance {
     @Column(name = "balance_net")
     var balanceNet: Int = 0
 
-    @Column(name = "balance_at")
-    var balanceAt: LocalDate = LocalDate.now()
+    @Column(name = "balance_date")
+    var balanceDate: LocalDate = LocalDate.now()
 
     @Column(name = "br_au_forex")
     var brAuForex: Int = 0

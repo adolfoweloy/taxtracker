@@ -3,16 +3,16 @@ select * from product;
 select p.*, b.*
 from balance b
 inner join product p on p.id = b.product_id
-where b.balance_at between '2022-07-01' and '2022-07-31';
+where b.balance_date between '2022-07-01' and '2022-07-31';
 
 
 CREATE TEMPORARY TABLE temp_monthly_interest_analysis AS
 WITH monthly_interest AS (
     SELECT 
-        DATE_TRUNC('month', balance_at) AS month_year,
+        DATE_TRUNC('month', balance_date) AS month_year,
         SUM(interest) AS total_interest
     FROM balance
-    GROUP BY DATE_TRUNC('month', balance_at)
+    GROUP BY DATE_TRUNC('month', balance_date)
 )
 SELECT 
     TO_CHAR(month_year, 'YYYY-MM') AS month,

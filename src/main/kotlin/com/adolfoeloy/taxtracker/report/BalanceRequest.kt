@@ -39,8 +39,8 @@ data class BalanceRequest(
     @CsvBindByName(column = "Líquido")
     val balanceNet: String = "",
 
-    @CsvBindByName(column = "Previous Balance Date")
-    val previousBalanceDate: String = "",
+    @CsvBindByName(column = "Balance Date")
+    val balanceDate: String = "",
 
     @CsvBindByName(column = "BRLAUD Rate")
     val brToAuForex: String = ""

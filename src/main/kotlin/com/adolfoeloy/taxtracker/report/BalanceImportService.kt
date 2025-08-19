@@ -43,7 +43,7 @@ class BalanceImportService(
 
             val balance = balanceRepository.findByProductCertificateAndBalanceAt(
                 certificate = balanceRequest.certificate,
-                balanceAt = LocalDate.parse(balanceRequest.previousBalanceDate, formatter)
+                balanceDate = LocalDate.parse(balanceRequest.balanceDate, formatter)
             )
 
             if (balance == null) {
@@ -57,7 +57,7 @@ class BalanceImportService(
                         this.iof = balanceRequest.iof.toCents()
                         this.brTax = balanceRequest.brTax.toCents()
                         this.balanceNet = balanceRequest.balanceNet.toCents()
-                        this.balanceAt = LocalDate.parse(balanceRequest.previousBalanceDate, formatter)
+                        this.balanceDate = LocalDate.parse(balanceRequest.balanceDate, formatter)
                         this.brAuForex = balanceRequest.brToAuForex.toCents()
                     }
                 )
