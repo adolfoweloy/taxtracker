@@ -1,4 +1,4 @@
-package com.adolfoeloy.taxtracker.report
+package com.adolfoeloy.taxtracker.product
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter

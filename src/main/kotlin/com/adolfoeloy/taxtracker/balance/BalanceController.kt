@@ -1,4 +1,4 @@
-package com.adolfoeloy.taxtracker.report
+package com.adolfoeloy.taxtracker.balance
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping

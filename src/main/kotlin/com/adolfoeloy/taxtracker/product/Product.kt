@@ -1,4 +1,4 @@
-package com.adolfoeloy.taxtracker.report
+package com.adolfoeloy.taxtracker.product
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity

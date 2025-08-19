@@ -1,5 +1,8 @@
-package com.adolfoeloy.taxtracker.report
+package com.adolfoeloy.taxtracker.balance
 
+import com.adolfoeloy.taxtracker.product.Product
+import com.adolfoeloy.taxtracker.product.ProductRepository
+import com.adolfoeloy.taxtracker.product.Products
 import com.opencsv.bean.CsvToBeanBuilder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -34,7 +37,8 @@ class BalanceImportService(
         result.forEach { balanceRequest ->
             val product = productRepository
                 .findByCertificate(balanceRequest.certificate) ?:
-                productRepository.save<Product>(Products.createProduct(
+                productRepository.save<Product>(
+                    Products.Companion.createProduct(
                     name = balanceRequest.product,
                     certificate = balanceRequest.certificate,
                     issuedAt = balanceRequest.issuedAt,

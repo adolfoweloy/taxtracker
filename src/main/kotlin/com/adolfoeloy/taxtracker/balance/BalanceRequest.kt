@@ -1,4 +1,4 @@
-package com.adolfoeloy.taxtracker.report
+package com.adolfoeloy.taxtracker.balance
 
 import com.opencsv.bean.CsvBindByName
 

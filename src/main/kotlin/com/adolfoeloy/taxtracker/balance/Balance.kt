@@ -1,5 +1,6 @@
-package com.adolfoeloy.taxtracker.report
+package com.adolfoeloy.taxtracker.balance
 
+import com.adolfoeloy.taxtracker.product.Product
 import jakarta.persistence.*
 import java.time.LocalDate
 
