@@ -6,11 +6,11 @@ data class TransactionReport(
     val issuedAt: String,
     val matureAt: String,
     val paymentAt: String,
-    val principal: String,
-    val redemption: String,
-    val interest: String,
-    val brTax: String,
-    val credit: String,
+    val principal: Int,
+    val redemption: Int,
+    val interest: Int,
+    val brTax: Int,
+    val credit: Int,
     val description: String,
-    val brToAuForex: String
+    val brToAuForex: Int
 )

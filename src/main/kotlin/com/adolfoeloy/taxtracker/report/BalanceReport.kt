@@ -5,7 +5,7 @@ data class BalanceReport(
     val certificate: String,
     val issuedAt: String,
     val maturityDate: String,
-    val principal: String,
-    val interest: String,
-    val estimatedBrlTax: String
+    val principal: Int,
+    val interest: Int,
+    val estimatedBrlTax: Int
 )
