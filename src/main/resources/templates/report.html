@@ -152,7 +152,7 @@
             <td>[[${@numberUtils.fromCents(transaction.brTax)}]]</td>
             <td>[[${@numberUtils.fromCents(transaction.credit)}]]</td>
             <td>[[${transaction.description}]]</td>
-            <td>[[${@numberUtils.fromCents(transaction.brToAuForex)}]]</td>
+            <td>[[${@numberUtils.forexRateFromCents(transaction.brToAuForex)}]]</td>
         </tr>
         </tbody>
         <tfoot>
@@ -164,7 +164,7 @@
             <td th:text="${@numberUtils.fromCents(transactions.totalBrTax)}"></td>
             <td th:text="${@numberUtils.fromCents(transactions.totalCredit)}"></td>
             <td></td>
-            <td th:text="${@numberUtils.fromCents(transactions.totalBrToAuForex)}"></td>
+            <td></td>
         </tfoot>
     </table>
 

@@ -8,12 +8,13 @@ import java.text.DecimalFormat
  * Converts an integer representing cents to a formatted currency string.
  * Example: 123456 -> "1,234.56"
  */
-fun Int.fromCents(): String {
+fun Int.fromCents(scale: Int = 2): String {
+    val zeros = "0".repeat(scale)
     return BigDecimal.valueOf(this.toLong())
-        .movePointLeft(2)
-        .setScale(2, RoundingMode.HALF_UP)
+        .movePointLeft(scale)
+        .setScale(scale, RoundingMode.HALF_UP)
         .let { decimal ->
-            val formatter = DecimalFormat("#,##0.00")
+            val formatter = DecimalFormat("#,##0.${zeros}")
             formatter.format(decimal)
         }
 }
