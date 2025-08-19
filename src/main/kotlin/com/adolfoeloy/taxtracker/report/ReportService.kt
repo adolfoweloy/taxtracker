@@ -21,7 +21,7 @@ class ReportService(
         return ReportData(
             period = Period(
                 from = "${year}-${month}-01",
-                to = "${year}-${month}-${LocalDate.of(year, month, 1).lengthOfMonth()}"
+                to = "${year}-${month}-${getLastDayOf(year, month)}"
             ),
             balanceBefore = Balance(balanceAt = "${year}-${month - 1}-01", entries = balanceBefore),
             balanceNow = Balance(balanceAt = "${year}-${month}-01", entries = balanceNow),
@@ -29,10 +29,10 @@ class ReportService(
         )
     }
 
-    fun getBalanceReport(month: Int, year: Int, currency: String): List<BalanceReport> {
+    private fun getLastDayOf(year: Int, month: Int): Int = LocalDate.of(year, month, 1).lengthOfMonth()
+
+    private fun getBalanceReport(month: Int, year: Int, currency: String): List<BalanceReport> {
         return balanceRepository.findByMonthAndYear(month, year).map { balance ->
-
-
             BalanceReport(
                 product = balance.product?.name ?: "Unknown Product",
                 certificate = balance.product?.certificate ?: "Unknown Certificate",
@@ -45,7 +45,7 @@ class ReportService(
         }
     }
 
-    fun getTransactionsReport(month: Int, year: Int, currency: String): List<TransactionReport> {
+    private fun getTransactionsReport(month: Int, year: Int, currency: String): List<TransactionReport> {
         return transactionRepository.findByMonthAndYear(month, year).map { transaction ->
             TransactionReport(
                 product = transaction.product?.name ?: "Unknown Product",

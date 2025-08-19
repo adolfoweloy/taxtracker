@@ -4,14 +4,14 @@ import com.adolfoeloy.taxtracker.product.Product
 import com.adolfoeloy.taxtracker.product.ProductRepository
 import com.adolfoeloy.taxtracker.product.Products
 import com.opencsv.bean.CsvToBeanBuilder
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import java.io.InputStreamReader
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-@Service
+@Component
 class BalanceImportService(
     private val balanceRepository: BalanceRepository,
     private val productRepository: ProductRepository
