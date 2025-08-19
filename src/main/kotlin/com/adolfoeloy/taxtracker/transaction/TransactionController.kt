@@ -1,4 +1,4 @@
-package com.adolfoeloy.taxtracker.balance
+package com.adolfoeloy.taxtracker.transaction
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
@@ -8,18 +8,17 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 
 @RestController
-@RequestMapping("/api/balance")
-class BalanceController(
-    private val balanceImportService: BalanceImportService
+@RequestMapping("/api/transaction")
+class TransactionController(
+    private val transactionImportService: TransactionImportService
 ) {
 
     @PostMapping("/import")
-    fun importBalance(@RequestParam("file") file: MultipartFile): ResponseEntity<Map<String, Any>> {
+    fun importTransactions(@RequestParam("file") file: MultipartFile): ResponseEntity<Map<String, Any>> {
 
         try {
-            val rowsProcessed = balanceImportService.processCsvFile(file)
-
-            return ResponseEntity.ok(mapOf<String, Any>(
+            val rowsProcessed = transactionImportService.processCsvFile(file)
+            return ResponseEntity.ok(mapOf(
                 "message" to "CSV file processed successfully",
                 "rowsProcessed" to rowsProcessed,
             ))
