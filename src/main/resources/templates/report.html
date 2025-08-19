@@ -10,7 +10,14 @@
             font-size: 16px;
             font-family: Arial, sans-serif;
         }
-
+        label.summary-right {
+            display: block;
+            text-align: right;
+            float: right;
+            width: auto;
+            font-weight: bold;
+            color: #007bff;
+        }
         .report-table {
             width: 100%;
             border-collapse: collapse;
@@ -76,6 +83,7 @@
     <label class="summary">
         <strong th:text="${@numberUtils.fromCents((balanceNow.totalInterest + transactions.totalInterest) - balanceBefore.totalInterest)}"></strong>
     </label>
+    <label class="summary summary-right">Currency: BRL</label>
 
     <h3 class="section-title">Balance at [[${balanceBefore.balanceAt}]]</h3>
     <table class="report-table">
