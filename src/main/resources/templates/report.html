@@ -5,11 +5,68 @@
 >
 <head>
     <title>Report</title>
+    <style>
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .report-table th {
+            background-color: #f8f9fa;
+            color: #495057;
+            font-weight: bold;
+            padding: 12px 8px;
+            text-align: left;
+            border: 2px solid #dee2e6;
+            border-bottom: 3px solid #6c757d;
+        }
+
+        .report-table td {
+            padding: 10px 8px;
+            border: 1px solid #dee2e6;
+            background-color: #ffffff;
+        }
+
+        .report-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .report-table tbody tr:hover {
+            background-color: #e9ecef;
+            transition: background-color 0.2s;
+        }
+
+        .section-title {
+            color: #495057;
+            margin: 30px 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #007bff;
+            font-weight: 600;
+        }
+
+        .section-divider {
+            border: none;
+            height: 2px;
+            background: linear-gradient(to right, #007bff, #6c757d, #007bff);
+            margin: 40px 0;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 20px;
+        }
+    </style>
 </head>
 <section class="section" layout:fragment="page-content">
 
-    <h3>Balance at [[${balanceBeforeAt}]]</h3>
-    <table class="table" th:if="${balanceBefore}">
+    <h3 class="section-title">Balance at [[${balanceBeforeAt}]]</h3>
+    <table class="report-table">
         <thead>
         <tr>
             <th scope="col">Product</th>
@@ -34,10 +91,48 @@
         </tbody>
     </table>
 
-    <hr/>
+    <hr class="section-divider"/>
 
-    <h3>Current balance at [[${balanceNowAt}]]</h3>
-    <table class="table" th:if="${balanceNow}">
+    <h3 class="section-title">Transactions for the period</h3>
+    <table class="report-table">
+        <thead>
+        <tr>
+            <th scope="col">Product</th>
+            <th scope="col">Certificate</th>
+            <th scope="col">Issued at</th>
+            <th scope="col">Mature at</th>
+            <th scope="col">Payment at</th>
+            <th scope="col">Principal</th>
+            <th scope="col">Redemption</th>
+            <th scope="col">Interest</th>
+            <th scope="col">BR Tax</th>
+            <th scope="col">Credit</th>
+            <th scope="col">Description</th>
+            <th scope="col">BR to AU Forex</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="transaction : ${transactions}">
+            <td>[[${transaction.product}]]</td>
+            <td>[[${transaction.certificate}]]</td>
+            <td>[[${transaction.issuedAt}]]</td>
+            <td>[[${transaction.matureAt}]]</td>
+            <td>[[${transaction.paymentAt}]]</td>
+            <td>[[${transaction.principal}]]</td>
+            <td>[[${transaction.redemption}]]</td>
+            <td>[[${transaction.interest}]]</td>
+            <td>[[${transaction.brTax}]]</td>
+            <td>[[${transaction.credit}]]</td>
+            <td>[[${transaction.description}]]</td>
+            <td>[[${transaction.brToAuForex}]]</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <hr class="section-divider"/>
+
+    <h3 class="section-title">Current balance at [[${balanceNowAt}]]</h3>
+    <table class="report-table">
         <thead>
         <tr>
             <th scope="col">Product</th>
@@ -61,5 +156,6 @@
         </tr>
         </tbody>
     </table>
+
 </section>
 </html>

@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter
 @Controller
 @RequestMapping("/report")
 class ReportController(
-    private val balanceReportService: BalanceReportService
+    private val reportService: ReportService
 ) {
 
     private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
@@ -24,14 +24,17 @@ class ReportController(
     ): String {
         val currentDate = LocalDate.of(year, month, 1)
         val previousDate = currentDate.minusDays(1)
-        val balanceBefore = balanceReportService.getBalanceReport(previousDate.monthValue, previousDate.year)
-        val balanceNow = balanceReportService.getBalanceReport(month, year)
+        val balanceBefore = reportService.getBalanceReport(previousDate.monthValue, previousDate.year)
+        val balanceNow = reportService.getBalanceReport(month, year)
+
+        val transactions = reportService.getTransactionReport(month, year)
 
         // Add the result to the model to be used in the view with formatted dates
         model.addAttribute("balanceBeforeAt", previousDate.format(dateFormatter))
         model.addAttribute("balanceBefore", balanceBefore)
         model.addAttribute("balanceNowAt", currentDate.format(dateFormatter))
         model.addAttribute("balanceNow", balanceNow)
+        model.addAttribute("transactions", transactions)
 
         return "report"
     }
