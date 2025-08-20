@@ -1,6 +1,7 @@
 package com.adolfoeloy.taxtracker.report
 
 import com.adolfoeloy.taxtracker.balance.BalanceRepository
+import com.adolfoeloy.taxtracker.forex.ForexService
 import com.adolfoeloy.taxtracker.transaction.TransactionRepository
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -9,7 +10,8 @@ import java.time.format.DateTimeFormatter
 @Component
 class ReportService(
     private val balanceRepository: BalanceRepository,
-    private val transactionRepository: TransactionRepository
+    private val transactionRepository: TransactionRepository,
+    private val forexService: ForexService
 ) {
     private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
@@ -25,7 +27,8 @@ class ReportService(
             ),
             balanceBefore = Balance(balanceAt = "${year}-${month - 1}-01", entries = balanceBefore),
             balanceNow = Balance(balanceAt = "${year}-${month}-01", entries = balanceNow),
-            transactions = Transactions(entries = transactions)
+            transactions = Transactions(entries = transactions),
+            currencyTicker = currency
         )
     }
 
@@ -38,9 +41,9 @@ class ReportService(
                 certificate = balance.product?.certificate ?: "Unknown Certificate",
                 issuedAt = balance.product?.issuedAt?.format(dateFormatter) ?: "Unknown Issue Date",
                 maturityDate = balance.product?.matureAt?.format(dateFormatter) ?: "Unknown Maturity Date",
-                principal = balance.principal,
-                interest = balance.interest,
-                estimatedBrlTax = balance.brTax
+                principal = forexService.applyForexRateFor(balance.principal, currency),
+                interest = forexService.applyForexRateFor(balance.interest, currency),
+                estimatedBrlTax = forexService.applyForexRateFor(balance.brTax, currency)
             )
         }
     }
@@ -53,11 +56,11 @@ class ReportService(
                 issuedAt = transaction.product?.issuedAt?.format(dateFormatter) ?: "Unknown Issue Date",
                 matureAt = transaction.product?.matureAt?.format(dateFormatter) ?: "Unknown Maturity Date",
                 paymentAt = transaction.paymentDate.format(dateFormatter),
-                principal = transaction.principal,
-                redemption = transaction.redemption,
-                interest = transaction.interest,
-                brTax = transaction.brTax,
-                credit = transaction.credited,
+                principal = forexService.applyForexRateFor(transaction.principal, currency),
+                redemption = forexService.applyForexRateFor(transaction.redemption, currency),
+                interest = forexService.applyForexRateFor(transaction.interest, currency),
+                brTax = forexService.applyForexRateFor(transaction.brTax, currency),
+                credit = forexService.applyForexRateFor(transaction.credited, currency),
                 description = transaction.description,
                 brToAuForex = transaction.brToAuForex
             )

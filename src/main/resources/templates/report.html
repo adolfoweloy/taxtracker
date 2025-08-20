@@ -81,9 +81,9 @@
     <label class="summary">Gross interest earned =</label>
     <label class="summary">(total_interest_now + total_interest_redemptions) - total_interest_before=</label>
     <label class="summary">
-        <strong th:text="${@numberUtils.fromCents((balanceNow.totalInterest + transactions.totalInterest) - balanceBefore.totalInterest)}"></strong>
+        <strong th:text="${@numberUtils.fromCents(totalGrossInterestEarned)}"></strong>
     </label>
-    <label class="summary summary-right">Currency: BRL</label>
+    <label class="summary summary-right">Currency: [[${currencyTicker}]]</label>
 
     <h3 class="section-title">Balance at [[${balanceBefore.balanceAt}]]</h3>
     <table class="report-table">
@@ -133,7 +133,7 @@
             <th scope="col">Principal</th>
             <th scope="col">Redemption</th>
             <th scope="col">Interest</th>
-            <th scope="col">BR Tax</th>
+            <th scope="col">[[${currencyTicker}]] Tax</th>
             <th scope="col">Credit</th>
             <th scope="col">Description</th>
             <th scope="col">BR to AU Forex</th>
@@ -152,7 +152,7 @@
             <td>[[${@numberUtils.fromCents(transaction.brTax)}]]</td>
             <td>[[${@numberUtils.fromCents(transaction.credit)}]]</td>
             <td>[[${transaction.description}]]</td>
-            <td>[[${@numberUtils.fromCents(transaction.brToAuForex)}]]</td>
+            <td>[[${@numberUtils.forexRateFromCents(transaction.brToAuForex)}]]</td>
         </tr>
         </tbody>
         <tfoot>
@@ -164,7 +164,7 @@
             <td th:text="${@numberUtils.fromCents(transactions.totalBrTax)}"></td>
             <td th:text="${@numberUtils.fromCents(transactions.totalCredit)}"></td>
             <td></td>
-            <td th:text="${@numberUtils.fromCents(transactions.totalBrToAuForex)}"></td>
+            <td></td>
         </tfoot>
     </table>
 
