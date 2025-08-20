@@ -21,7 +21,7 @@ class ForexService {
     private fun getForexRate(currencyTicker: String): ForexRate {
         return when (currencyTicker) {
             "AUD" -> ForexRate("AUD", 271244) // 0.271244 BRL
-            else -> ForexRate("BRL", 1) // Default rate for BRL or unknown currencies
+            else -> ForexRate("BRL", 1_000_000) // Default rate for BRL or unknown currencies
         }
     }
 

@@ -5,6 +5,7 @@ data class ReportData(
     val balanceBefore: Balance,
     val balanceNow: Balance,
     val transactions: Transactions,
+    val currencyTicker: String,
 ) {
     fun totalGrossInterestEarned(): Int =
         (balanceNow.totalInterest + transactions.totalInterest) - balanceBefore.totalInterest

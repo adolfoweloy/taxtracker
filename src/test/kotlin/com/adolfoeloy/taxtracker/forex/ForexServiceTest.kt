@@ -65,8 +65,8 @@ class ForexServiceTest {
         }
 
         @Test
-        @DisplayName("should return near-zero for BRL to BRL conversion due to rate calculation bug")
-        fun shouldReturnNearZeroForBrlToBrlConversion() {
+        @DisplayName("should return same amount for BRL to BRL conversion")
+        fun shouldReturnSameAmountForBrlToBrlConversion() {
             // Given
             val brlAmountInCents = 50000 // 500.00 BRL
             val targetCurrency = "BRL"
@@ -75,15 +75,14 @@ class ForexServiceTest {
             val result = forexService.applyForexRateFor(brlAmountInCents, targetCurrency)
 
             // Then
-            // BRL to BRL should be 1:1, but current implementation has a bug:
-            // BRL rate is 1, but getBigDecimalRate() applies movePointLeft(6) making it 0.000001
-            // So 500.00 BRL * 0.000001 = 0.0005 = 0 cents (rounded)
-            assertThat(result).isEqualTo(0)
+            // BRL to BRL should be 1:1, rate is 1000000 which becomes 1.000000 after movePointLeft(6)
+            // So 500.00 BRL * 1.000000 = 500.00 BRL = 50000 cents
+            assertThat(result).isEqualTo(50000)
         }
 
         @Test
-        @DisplayName("should return near-zero for unknown currencies (fallback to BRL)")
-        fun shouldReturnNearZeroForUnknownCurrencies() {
+        @DisplayName("should return same amount for unknown currencies (fallback to BRL)")
+        fun shouldReturnSameAmountForUnknownCurrencies() {
             // Given
             val brlAmountInCents = 25000 // 250.00 BRL
             val unknownCurrency = "USD"
@@ -92,8 +91,8 @@ class ForexServiceTest {
             val result = forexService.applyForexRateFor(brlAmountInCents, unknownCurrency)
 
             // Then
-            // Unknown currencies fallback to BRL rate, which has the same bug as BRL to BRL conversion
-            assertThat(result).isEqualTo(0)
+            // Unknown currencies fallback to BRL rate (1000000 -> 1.000000), so amount should remain the same
+            assertThat(result).isEqualTo(25000)
         }
 
         @Test
@@ -136,8 +135,8 @@ class ForexServiceTest {
             val result = forexService.applyForexRateFor(brlAmountInCents, lowerCaseAud)
 
             // Then
-            // "aud" != "AUD", so it falls back to BRL rate with the movePointLeft(6) bug
-            assertThat(result).isEqualTo(0)
+            // "aud" != "AUD", so it falls back to BRL rate (1000000 -> 1.000000), amount remains the same
+            assertThat(result).isEqualTo(10000)
         }
 
         @Test
@@ -151,8 +150,8 @@ class ForexServiceTest {
             val result = forexService.applyForexRateFor(brlAmountInCents, emptyCurrency)
 
             // Then
-            // Empty string falls back to BRL rate with the movePointLeft(6) bug
-            assertThat(result).isEqualTo(0)
+            // Empty string falls back to BRL rate (1000000 -> 1.000000), amount remains the same
+            assertThat(result).isEqualTo(15000)
         }
 
         @Test
