@@ -26,6 +26,7 @@ class ReportController(
             model.addAttribute("balanceBefore", reportData.balanceBefore)
             model.addAttribute("balanceNow", reportData.balanceNow)
             model.addAttribute("transactions", reportData.transactions)
+            model.addAttribute("totalGrossInterestEarned", reportData.totalGrossInterestEarned())
         }
 
         return "report"

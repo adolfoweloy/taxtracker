@@ -81,7 +81,7 @@
     <label class="summary">Gross interest earned =</label>
     <label class="summary">(total_interest_now + total_interest_redemptions) - total_interest_before=</label>
     <label class="summary">
-        <strong th:text="${@numberUtils.fromCents((balanceNow.totalInterest + transactions.totalInterest) - balanceBefore.totalInterest)}"></strong>
+        <strong th:text="${totalGrossInterestEarned}"></strong>
     </label>
     <label class="summary summary-right">Currency: BRL</label>
 
@@ -104,17 +104,17 @@
             <td>[[${balance.certificate}]]</td>
             <td>[[${balance.issuedAt}]]</td>
             <td>[[${balance.maturityDate}]]</td>
-            <td>[[${@numberUtils.fromCents(balance.principal)}]]</td>
-            <td>[[${@numberUtils.fromCents(balance.interest)}]]</td>
-            <td>[[${@numberUtils.fromCents(balance.estimatedBrlTax)}]]</td>
+            <td>[[${balance.principal}]]</td>
+            <td>[[${balance.interest}]]</td>
+            <td>[[${balance.estimatedBrlTax}]]</td>
         </tr>
         </tbody>
         <tfoot>
         <tr>
             <td colspan="4" style="text-align: right; font-weight: bold;">Total:</td>
-            <td th:text="${@numberUtils.fromCents(balanceBefore.totalPrincipal)}"></td>
-            <td th:text="${@numberUtils.fromCents(balanceBefore.totalInterest)}"></td>
-            <td th:text="${@numberUtils.fromCents(balanceBefore.totalEstimatedBrlTax)}"></td>
+            <td th:text="${balanceBefore.totalPrincipal}"></td>
+            <td th:text="${balanceBefore.totalInterest}"></td>
+            <td th:text="${balanceBefore.totalEstimatedBrlTax}"></td>
         </tr>
         </tfoot>
     </table>
@@ -146,11 +146,11 @@
             <td>[[${transaction.issuedAt}]]</td>
             <td>[[${transaction.matureAt}]]</td>
             <td>[[${transaction.paymentAt}]]</td>
-            <td>[[${@numberUtils.fromCents(transaction.principal)}]]</td>
-            <td>[[${@numberUtils.fromCents(transaction.redemption)}]]</td>
-            <td>[[${@numberUtils.fromCents(transaction.interest)}]]</td>
-            <td>[[${@numberUtils.fromCents(transaction.brTax)}]]</td>
-            <td>[[${@numberUtils.fromCents(transaction.credit)}]]</td>
+            <td>[[${transaction.principal}]]</td>
+            <td>[[${transaction.redemption}]]</td>
+            <td>[[${transaction.interest}]]</td>
+            <td>[[${transaction.brTax}]]</td>
+            <td>[[${transaction.credit}]]</td>
             <td>[[${transaction.description}]]</td>
             <td>[[${@numberUtils.forexRateFromCents(transaction.brToAuForex)}]]</td>
         </tr>
@@ -158,11 +158,11 @@
         <tfoot>
         <tr>
             <td colspan="5" style="text-align: right; font-weight: bold;">Total:</td>
-            <td th:text="${@numberUtils.fromCents(transactions.totalPrincipal)}"></td>
-            <td th:text="${@numberUtils.fromCents(transactions.totalRedemption)}"></td>
-            <td th:text="${@numberUtils.fromCents(transactions.totalInterest)}"></td>
-            <td th:text="${@numberUtils.fromCents(transactions.totalBrTax)}"></td>
-            <td th:text="${@numberUtils.fromCents(transactions.totalCredit)}"></td>
+            <td th:text="${transactions.totalPrincipal}"></td>
+            <td th:text="${transactions.totalRedemption}"></td>
+            <td th:text="${transactions.totalInterest}"></td>
+            <td th:text="${transactions.totalBrTax}"></td>
+            <td th:text="${transactions.totalCredit}"></td>
             <td></td>
             <td></td>
         </tfoot>
@@ -189,17 +189,17 @@
             <td>[[${balance.certificate}]]</td>
             <td>[[${balance.issuedAt}]]</td>
             <td>[[${balance.maturityDate}]]</td>
-            <td>[[${@numberUtils.fromCents(balance.principal)}]]</td>
-            <td>[[${@numberUtils.fromCents(balance.interest)}]]</td>
-            <td>[[${@numberUtils.fromCents(balance.estimatedBrlTax)}]]</td>
+            <td>[[${balance.principal}]]</td>
+            <td>[[${balance.interest}]]</td>
+            <td>[[${balance.estimatedBrlTax}]]</td>
         </tr>
         </tbody>
         <tfoot>
         <tr>
             <td colspan="4" style="text-align: right; font-weight: bold;">Total:</td>
-            <td th:text="${@numberUtils.fromCents(balanceNow.totalPrincipal)}"></td>
-            <td th:text="${@numberUtils.fromCents(balanceNow.totalInterest)}"></td>
-            <td th:text="${@numberUtils.fromCents(balanceNow.totalEstimatedBrlTax)}"></td>
+            <td th:text="${balanceNow.totalPrincipal}"></td>
+            <td th:text="${balanceNow.totalInterest}"></td>
+            <td th:text="${balanceNow.totalEstimatedBrlTax}"></td>
         </tr>
         </tfoot>
     </table>

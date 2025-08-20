@@ -4,8 +4,11 @@ data class ReportData(
     val period: Period,
     val balanceBefore: Balance,
     val balanceNow: Balance,
-    val transactions: Transactions
-)
+    val transactions: Transactions,
+) {
+    fun totalGrossInterestEarned(): Int =
+        (balanceNow.totalInterest + transactions.totalInterest) - balanceBefore.totalInterest
+}
 
 data class Period(
     val from: String,

@@ -35,8 +35,15 @@ FROM monthly_interest
 ORDER BY month_year;
 
 
+select * from forex;
+update balance set br_au_forex = 271244;
+update transaction set br_au_forex = 271244;
+
 ----------------------------------------------------------------------------------
 -- get total interest since begining
+
+
+
 select sum(r.balance_sum) + sum(r.redemption_sum)
 from (
     select sum(interest_difference) balance_sum, 0 redemption_sum
