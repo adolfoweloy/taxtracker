@@ -47,6 +47,4 @@ data class Transactions(
     val totalCredit: Int
         get() = entries.sumOf { it.credit }
 
-    val totalBrToAuForex: Int
-        get() = entries.sumOf { it.brToAuForex }
 }

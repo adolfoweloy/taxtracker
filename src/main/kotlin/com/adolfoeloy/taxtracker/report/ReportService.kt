@@ -2,7 +2,6 @@ package com.adolfoeloy.taxtracker.report
 
 import com.adolfoeloy.taxtracker.balance.BalanceRepository
 import com.adolfoeloy.taxtracker.transaction.TransactionRepository
-import com.adolfoeloy.taxtracker.util.fromCents
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
