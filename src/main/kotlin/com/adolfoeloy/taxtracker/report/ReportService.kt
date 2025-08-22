@@ -67,4 +67,55 @@ class ReportService(
         }
     }
 
+    fun getTaxReportData(start: LocalDate, end: LocalDate, currency: String = "BRL"): List<TaxReport> {
+        val result = mutableListOf<TaxReport>()
+
+        var previousMonth = start.minusMonths(1)
+        var tmpCurrent = start
+
+        while (tmpCurrent.isBefore(end) || tmpCurrent.isEqual(end)) {
+
+            // nem sempre o ano é o mesmo.
+            val previousBalance = balanceRepository.findByMonthAndYear(
+                month = previousMonth.monthValue,
+                year = previousMonth.year
+            )
+
+            val currentBalance = balanceRepository.findByMonthAndYear(
+                month = tmpCurrent.monthValue,
+                year = tmpCurrent.year
+            )
+
+            val totalInterest = transactionRepository
+                .findByMonthAndYear(tmpCurrent.monthValue, tmpCurrent.year)
+                    .sumOf { transaction -> transaction.interest }
+            val totalPaidTax = transactionRepository
+                .findByMonthAndYear(tmpCurrent.monthValue, tmpCurrent.year)
+                    .sumOf { transaction -> transaction.brTax }
+
+            // balance difference
+            val previousBalanceInterest = previousBalance.sumOf { it.interest }
+            val currentBalanceInterest = currentBalance.sumOf { it.interest }
+            val totalGrossInterest = (currentBalanceInterest + totalInterest) - previousBalanceInterest
+
+            result.add(
+                TaxReport(
+                    calendarPeriod = CalendarPeriod(
+                        month = tmpCurrent.monthValue,
+                        year = tmpCurrent.year
+                    ),
+                    totalGrossInterestEarned = totalGrossInterest,
+                    totalPaidTax = totalPaidTax,
+                    currencyTicker = currency
+                )
+            )
+
+            // step on the next month
+            previousMonth = previousMonth.plusMonths(1)
+            tmpCurrent = tmpCurrent.plusMonths(1)
+        }
+
+        return result
+    }
+
 }

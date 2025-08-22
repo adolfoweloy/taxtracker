@@ -1,5 +1,17 @@
 package com.adolfoeloy.taxtracker.report
 
+data class TaxReport(
+    val calendarPeriod: CalendarPeriod,
+    val totalGrossInterestEarned: Int,
+    val totalPaidTax: Int,
+    val currencyTicker: String
+)
+
+data class CalendarPeriod(
+    val month: Int,
+    val year: Int
+)
+
 data class ReportData(
     val period: Period,
     val balanceBefore: Balance,

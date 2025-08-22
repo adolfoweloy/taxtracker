@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+import java.time.LocalDate
 
 @Controller
 @RequestMapping("/report")
@@ -33,4 +34,19 @@ class ReportController(
         return "report"
     }
 
+    @GetMapping("/tax/{financial_year}")
+    fun tax(
+        model: Model,
+        @PathVariable("financial_year") financialYear: Int
+    ): String {
+        var start = LocalDate.of(2000 + (financialYear - 1), 7, 1)
+        var end = LocalDate.of(2000 + financialYear, 6, 30)
+        var taxReport = reportService.getTaxReportData(
+            start = start,
+            end = end
+        )
+        model.addAttribute("taxReport", taxReport)
+        model.addAttribute("financialYear", financialYear)
+        return "tax_report"
+    }
 }
