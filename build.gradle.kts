@@ -14,6 +14,27 @@ java {
 	}
 }
 
+sourceSets {
+    create("integrationTest") {
+        kotlin {
+            compileClasspath += main.get().output + test.get().output
+            runtimeClasspath += main.get().output + test.get().output
+            srcDir(file("src/integrationTest/kotlin"))
+        }
+        resources {
+            srcDir(file("src/integrationTest/resources"))
+        }
+    }
+}
+
+val integrationTestImplementation by configurations.getting {
+    extendsFrom(configurations["testImplementation"])
+}
+
+val integrationTestRuntimeOnly by configurations.getting {
+    extendsFrom(configurations["testRuntimeOnly"])
+}
+
 repositories {
 	mavenCentral()
 }
@@ -51,6 +72,9 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    // integration tests dependencies
+    integrationTestImplementation("org.springframework.boot:spring-boot-testcontainers")
 }
 
 kotlin {
@@ -61,4 +85,15 @@ kotlin {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+tasks.register<Test>("integrationTest") {
+    description = "Runs integration tests"
+    group = "verification"
+
+    testClassesDirs = sourceSets["integrationTest"].output.classesDirs
+    classpath = sourceSets["integrationTest"].runtimeClasspath
+
+    shouldRunAfter(tasks.test)
+    useJUnitPlatform()
 }
