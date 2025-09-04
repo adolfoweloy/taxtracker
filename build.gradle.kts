@@ -99,4 +99,16 @@ tasks.register<Test>("integrationTest") {
 
     shouldRunAfter(tasks.test)
     useJUnitPlatform()
+    
+    // Disable caching for integration tests
+    outputs.upToDateWhen { false }
+    
+    // Always show test results
+    testLogging {
+        events("passed", "skipped", "failed", "standard_out", "standard_error")
+        showStandardStreams = true
+        showExceptions = true
+        showCauses = true
+        showStackTraces = true
+    }
 }

@@ -26,12 +26,16 @@ class DatabaseIntegrationTest {
             issuedAt = LocalDate.of(2023, 1, 1)
             matureAt = LocalDate.of(2024, 1, 1)
         }
-        val saved = productRepository.save(product)
 
         // Act
+        val saved = productRepository.save(product)
         val retrievedProduct = productRepository.findById(saved.id).orElse(null)
 
         // Assert
         assertThat(retrievedProduct).isNotNull
+        assertThat(retrievedProduct?.name).isEqualTo("CDB Facil")
+        assertThat(retrievedProduct?.certificate).isEqualTo("1234567890")
+        assertThat(retrievedProduct?.issuedAt).isEqualTo(LocalDate.of(2023, 1, 1))
+        assertThat(retrievedProduct?.matureAt).isEqualTo(LocalDate.of(2024, 1, 1))
     }
 }
