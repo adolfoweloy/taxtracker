@@ -1,18 +1,13 @@
 package com.adolfoeloy.taxtracker
 
-import com.adolfoeloy.taxtracker.config.DatabaseTestConfiguration
 import com.adolfoeloy.taxtracker.product.Product
 import com.adolfoeloy.taxtracker.product.ProductRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.context.annotation.Import
 import java.time.LocalDate
 
-@DataJpaTest
-@Import(DatabaseTestConfiguration::class)
-class DatabaseIntegrationTest {
+class DatabaseIntegrationTest : AbstractDatabaseIntegrationTest() {
 
     @Autowired
     private lateinit var productRepository: ProductRepository
