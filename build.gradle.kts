@@ -75,6 +75,9 @@ dependencies {
 
     // integration tests dependencies
     integrationTestImplementation("org.springframework.boot:spring-boot-testcontainers")
+    integrationTestImplementation("org.testcontainers:junit-jupiter")
+    integrationTestImplementation("org.testcontainers:postgresql")
+
 }
 
 kotlin {
