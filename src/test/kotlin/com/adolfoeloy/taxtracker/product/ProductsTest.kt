@@ -10,29 +10,8 @@ import java.time.LocalDate
 class ProductsTest {
 
     @Nested
-    @DisplayName("createProduct tests")
-    inner class CreateProductTests {
-
-        @Test
-        @DisplayName("should create product with valid data and correct date formatting")
-        fun shouldCreateProductWithValidDataAndCorrectDateFormatting() {
-            // Given
-            val name = "Investment Fund XYZ"
-            val certificate = "12602370000023458961"
-            val issuedAt = "15/03/2023"
-            val matureAt = "15/03/2025"
-
-            // When
-            val product = Products.createProduct(name, certificate, issuedAt, matureAt)
-
-            // Then
-            assertThat(product).isNotNull
-            assertThat(product.name).isEqualTo(name)
-            assertThat(product.certificate).isEqualTo(certificate)
-            assertThat(product.issuedAt).isEqualTo(LocalDate.of(2023, 3, 15))
-            assertThat(product.matureAt).isEqualTo(LocalDate.of(2025, 3, 15))
-            assertThat(product.id).isEqualTo(0) // Default value before persistence
-        }
+    @DisplayName("normalizeCertificate tests")
+    inner class NormalizeCertificateTests {
 
         @Test
         @DisplayName("should normalize 13-character certificate to 20-character format")
@@ -160,6 +139,32 @@ class ProductsTest {
             assertThat(product.name).isEqualTo(name)
             assertThat(product.issuedAt).isEqualTo(LocalDate.of(2024, 1, 1))
             assertThat(product.matureAt).isEqualTo(LocalDate.of(2024, 12, 31))
+        }
+    }
+
+    @Nested
+    @DisplayName("createProduct tests")
+    inner class CreateProductTests {
+
+        @Test
+        @DisplayName("should create product with valid data and correct date formatting")
+        fun shouldCreateProductWithValidDataAndCorrectDateFormatting() {
+            // Given
+            val name = "Investment Fund XYZ"
+            val certificate = "12602370000023458961"
+            val issuedAt = "15/03/2023"
+            val matureAt = "15/03/2025"
+
+            // When
+            val product = Products.createProduct(name, certificate, issuedAt, matureAt)
+
+            // Then
+            assertThat(product).isNotNull
+            assertThat(product.name).isEqualTo(name)
+            assertThat(product.certificate).isEqualTo(certificate)
+            assertThat(product.issuedAt).isEqualTo(LocalDate.of(2023, 3, 15))
+            assertThat(product.matureAt).isEqualTo(LocalDate.of(2025, 3, 15))
+            assertThat(product.id).isEqualTo(0) // Default value before persistence
         }
 
         @Test
