@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository
 @Repository
 interface ProductRepository : JpaRepository<Product, Int> {
 
-    fun findByCertificate(certificate: String): Product?
+    fun findByCertificate(certificate: Certificate): Product?
 
 }

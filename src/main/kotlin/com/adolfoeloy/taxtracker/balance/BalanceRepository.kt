@@ -1,5 +1,6 @@
 package com.adolfoeloy.taxtracker.balance
 
+import com.adolfoeloy.taxtracker.product.Certificate
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
@@ -18,7 +19,7 @@ interface BalanceRepository : JpaRepository<Balance, Int> {
      */
     @Query("SELECT b FROM Balance b JOIN b.product p WHERE p.certificate = :certificate AND b.balanceDate = :balanceDate")
     fun findByProductCertificateAndBalanceAt(
-        @Param("certificate") certificate: String,
+        @Param("certificate") certificate: Certificate,
         @Param("balanceDate") balanceDate: LocalDate
     ): Balance?
 

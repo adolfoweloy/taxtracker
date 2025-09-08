@@ -1,9 +1,16 @@
 package com.adolfoeloy.taxtracker.product
 
+import jakarta.persistence.Column
+import jakarta.persistence.Embeddable
+
 /**
  * Represents a certificate with normalization logic for different formats.
  */
-data class Certificate(val value: String) {
+@Embeddable
+class Certificate{
+    @Column(name = "certificate")
+    var value: String = ""
+
     companion object {
         /**
          * Normalizes the certificate string and returns a Certificate instance.
@@ -21,7 +28,7 @@ data class Certificate(val value: String) {
                 20 -> raw
                 else -> raw
             }
-            return Certificate(normalized)
+            return Certificate().apply { value = normalized }
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.adolfoeloy.taxtracker.balance
 
+import com.adolfoeloy.taxtracker.product.Certificate
 import com.adolfoeloy.taxtracker.product.Product
 import com.adolfoeloy.taxtracker.product.ProductRepository
 import com.adolfoeloy.taxtracker.product.Products
@@ -35,18 +36,19 @@ class BalanceImportService(
         var rowsProcessed = 0
 
         result.forEach { balanceRequest ->
+            val certificate = Certificate.createNormalizedCertificate(balanceRequest.certificate)
             val product = productRepository
-                .findByCertificate(balanceRequest.certificate) ?:
+                .findByCertificate(certificate) ?:
                 productRepository.save<Product>(
                     Products.Companion.createProduct(
                     name = balanceRequest.product,
-                    certificate = balanceRequest.certificate,
+                    certificate = certificate,
                     issuedAt = balanceRequest.issuedAt,
                     matureAt = balanceRequest.matureAt
                 ))
 
             val balance = balanceRepository.findByProductCertificateAndBalanceAt(
-                certificate = balanceRequest.certificate,
+                certificate = product.certificate,
                 balanceDate = LocalDate.parse(balanceRequest.balanceDate, formatter)
             )
 

@@ -1,5 +1,6 @@
 package com.adolfoeloy.taxtracker.transaction
 
+import com.adolfoeloy.taxtracker.product.Certificate
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
@@ -28,7 +29,7 @@ interface TransactionRepository : JpaRepository<Transaction, Int> {
      */
     @Query("SELECT t FROM Transaction t JOIN t.product p WHERE p.certificate = :certificate AND t.paymentDate = :paymentDate")
     fun findByProductCertificateAndPaymentDate(
-        @Param("certificate") certificate: String,
+        @Param("certificate") certificate: Certificate,
         @Param("paymentDate") paymentDate: LocalDate
     ): Transaction?
 }

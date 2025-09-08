@@ -1,6 +1,7 @@
 package com.adolfoeloy.taxtracker.transaction
 
 import com.adolfoeloy.taxtracker.balance.BalanceRequest
+import com.adolfoeloy.taxtracker.product.Certificate
 import com.adolfoeloy.taxtracker.product.Product
 import com.adolfoeloy.taxtracker.product.ProductRepository
 import com.adolfoeloy.taxtracker.product.Products
@@ -36,12 +37,13 @@ class TransactionImportService(
         val result = readCsvWithOpenCsv(filePath)
 
         result.forEach { transactionRequest ->
+            val certificate = Certificate.createNormalizedCertificate(transactionRequest.certificate)
             val product = productRepository
-                .findByCertificate(transactionRequest.certificate) ?:
+                .findByCertificate(certificate) ?:
             productRepository.save<Product>(
                 Products.Companion.createProduct(
                     name = transactionRequest.product,
-                    certificate = transactionRequest.certificate,
+                    certificate = certificate,
                     issuedAt = transactionRequest.issuedAt,
                     matureAt = transactionRequest.matureAt
                 ))

@@ -3,6 +3,7 @@ package com.adolfoeloy.taxtracker.report
 import com.adolfoeloy.taxtracker.balance.Balance
 import com.adolfoeloy.taxtracker.balance.BalanceRepository
 import com.adolfoeloy.taxtracker.forex.ForexService
+import com.adolfoeloy.taxtracker.product.Certificate
 import com.adolfoeloy.taxtracker.product.Product
 import com.adolfoeloy.taxtracker.transaction.TransactionRepository
 import org.assertj.core.api.Assertions.assertThat
@@ -62,7 +63,7 @@ class ReportServiceTest {
             Balance().apply {
                 product = Product().apply {
                     name = "Product A"
-                    certificate = "CERT123"
+                    certificate = Certificate.createNormalizedCertificate("CERT123")
                     issuedAt = date.minusYears(5)
                     matureAt = date.plusYears(5)
                 }
@@ -73,7 +74,7 @@ class ReportServiceTest {
             Balance().apply {
                 product = Product().apply {
                     name = "Product A"
-                    certificate = "CERT456"
+                    certificate = Certificate.createNormalizedCertificate("CERT456")
                     issuedAt = date.minusYears(3)
                     matureAt = date.plusYears(3)
                 }

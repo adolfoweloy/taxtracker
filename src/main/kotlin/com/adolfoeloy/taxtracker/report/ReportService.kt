@@ -38,7 +38,7 @@ class ReportService(
         return balanceRepository.findByMonthAndYear(month, year).map { balance ->
             BalanceReport(
                 product = balance.product?.name ?: "Unknown Product",
-                certificate = balance.product?.certificate ?: "Unknown Certificate",
+                certificate = balance.product?.certificate?.value ?: "Unknown Certificate",
                 issuedAt = balance.product?.issuedAt?.format(dateFormatter) ?: "Unknown Issue Date",
                 maturityDate = balance.product?.matureAt?.format(dateFormatter) ?: "Unknown Maturity Date",
                 principal = forexService.applyForexRateFor(balance.principal, currency),
@@ -52,7 +52,7 @@ class ReportService(
         return transactionRepository.findByMonthAndYear(month, year).map { transaction ->
             TransactionReport(
                 product = transaction.product?.name ?: "Unknown Product",
-                certificate = transaction.product?.certificate ?: "Unknown Certificate",
+                certificate = transaction.product?.certificate?.value ?: "Unknown Certificate",
                 issuedAt = transaction.product?.issuedAt?.format(dateFormatter) ?: "Unknown Issue Date",
                 matureAt = transaction.product?.matureAt?.format(dateFormatter) ?: "Unknown Maturity Date",
                 paymentAt = transaction.paymentDate.format(dateFormatter),

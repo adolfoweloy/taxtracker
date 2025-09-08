@@ -1,6 +1,7 @@
 package com.adolfoeloy.taxtracker.product
 
 import jakarta.persistence.Column
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -18,7 +19,8 @@ class Product {
 
     var name: String = ""
 
-    var certificate: String = ""
+    @Embedded
+    var certificate: Certificate = Certificate()
 
     @Column(name = "issued_at")
     var issuedAt: LocalDate = LocalDate.now()

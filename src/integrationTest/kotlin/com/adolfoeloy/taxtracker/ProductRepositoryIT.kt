@@ -1,5 +1,6 @@
 package com.adolfoeloy.taxtracker
 
+import com.adolfoeloy.taxtracker.product.Certificate
 import com.adolfoeloy.taxtracker.product.Product
 import com.adolfoeloy.taxtracker.product.ProductRepository
 import org.assertj.core.api.Assertions.assertThat
@@ -15,9 +16,10 @@ class ProductRepositoryIT : AbstractDatabaseIntegrationTest() {
     @Test
     fun `should create a new product correctly`() {
         // Arrange
+        val normalizedCertificate = Certificate.createNormalizedCertificate("1234567890")
         val product = Product().apply {
             name = "CDB Facil"
-            certificate = "1234567890"
+            certificate = normalizedCertificate
             issuedAt = LocalDate.of(2023, 1, 1)
             matureAt = LocalDate.of(2024, 1, 1)
         }
@@ -29,7 +31,7 @@ class ProductRepositoryIT : AbstractDatabaseIntegrationTest() {
         // Assert
         assertThat(retrievedProduct).isNotNull
         assertThat(retrievedProduct?.name).isEqualTo("CDB Facil")
-        assertThat(retrievedProduct?.certificate).isEqualTo("1234567890")
+        assertThat(retrievedProduct?.certificate).isEqualTo(normalizedCertificate)
         assertThat(retrievedProduct?.issuedAt).isEqualTo(LocalDate.of(2023, 1, 1))
         assertThat(retrievedProduct?.matureAt).isEqualTo(LocalDate.of(2024, 1, 1))
     }
