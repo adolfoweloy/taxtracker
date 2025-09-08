@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
-class DatabaseIntegrationTest : AbstractDatabaseIntegrationTest() {
+class ProductRepositoryIT : AbstractDatabaseIntegrationTest() {
 
     @Autowired
     private lateinit var productRepository: ProductRepository
