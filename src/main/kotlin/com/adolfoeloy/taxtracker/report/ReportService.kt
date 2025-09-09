@@ -3,6 +3,7 @@ package com.adolfoeloy.taxtracker.report
 import com.adolfoeloy.taxtracker.balance.BalanceRepository
 import com.adolfoeloy.taxtracker.forex.ForexService
 import com.adolfoeloy.taxtracker.transaction.TransactionRepository
+import com.adolfoeloy.taxtracker.util.toYearMonthString
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -11,7 +12,8 @@ import java.time.format.DateTimeFormatter
 class ReportService(
     private val balanceRepository: BalanceRepository,
     private val transactionRepository: TransactionRepository,
-    private val forexService: ForexService
+    private val forexService: ForexService,
+    private val taxProperties: TaxProperties
 ) {
     private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
@@ -92,11 +94,16 @@ class ReportService(
                         transaction -> forexService.applyForexRateFor(transaction.interest, currency)
                     }
 
-            val totalPaidTax = transactionRepository
-                .findByMonthAndYear(tmpCurrent.monthValue, tmpCurrent.year)
+            // there are months that I can't figure out the right figures, so unfortunately I skip them and can't claim FITO
+            val totalPaidTax = if (taxProperties.skipPaidFor.contains(tmpCurrent.toYearMonthString())) {
+                0
+            } else {
+                transactionRepository
+                    .findByMonthAndYear(tmpCurrent.monthValue, tmpCurrent.year)
                     .sumOf {
-                        transaction -> forexService.applyForexRateFor(transaction.brTax, currency)
+                            transaction -> forexService.applyForexRateFor(transaction.brTax, currency)
                     }
+            }
 
             // balance difference
             val previousBalanceInterest = previousBalance.sumOf {

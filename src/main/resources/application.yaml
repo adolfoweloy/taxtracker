@@ -9,3 +9,8 @@ spring:
     password: taxtracker
   flyway:
     enabled: true
+
+tax:
+  skipPaidFor:
+    - 202411
+    - 202504

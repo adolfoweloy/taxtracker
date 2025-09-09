@@ -31,7 +31,7 @@ class ReportServiceTest {
 
     @BeforeEach
     fun setUp() {
-        subject = ReportService(balanceRepository, transactionRepository, ForexService())
+        subject = ReportService(balanceRepository, transactionRepository, ForexService(), TaxProperties())
     }
 
     @Test
