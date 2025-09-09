@@ -75,7 +75,7 @@ class ReportService(
 
         while (tmpCurrent.isBefore(end) || tmpCurrent.isEqual(end)) {
 
-            // nem sempre o ano é o mesmo.
+            // not always the same year
             val previousBalance = balanceRepository.findByMonthAndYear(
                 month = previousMonth.monthValue,
                 year = previousMonth.year
@@ -88,14 +88,23 @@ class ReportService(
 
             val totalInterest = transactionRepository
                 .findByMonthAndYear(tmpCurrent.monthValue, tmpCurrent.year)
-                    .sumOf { transaction -> transaction.interest }
+                    .sumOf {
+                        transaction -> forexService.applyForexRateFor(transaction.interest, currency)
+                    }
+
             val totalPaidTax = transactionRepository
                 .findByMonthAndYear(tmpCurrent.monthValue, tmpCurrent.year)
-                    .sumOf { transaction -> transaction.brTax }
+                    .sumOf {
+                        transaction -> forexService.applyForexRateFor(transaction.brTax, currency)
+                    }
 
             // balance difference
-            val previousBalanceInterest = previousBalance.sumOf { it.interest }
-            val currentBalanceInterest = currentBalance.sumOf { it.interest }
+            val previousBalanceInterest = previousBalance.sumOf {
+                forexService.applyForexRateFor(it.interest, currency)
+            }
+            val currentBalanceInterest = currentBalance.sumOf {
+                forexService.applyForexRateFor(it.interest, currency)
+            }
             val totalGrossInterest = (currentBalanceInterest + totalInterest) - previousBalanceInterest
 
             result.add(

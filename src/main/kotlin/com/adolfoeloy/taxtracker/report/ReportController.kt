@@ -37,18 +37,24 @@ class ReportController(
     @GetMapping("/tax/{financial_year}")
     fun tax(
         model: Model,
+        @RequestParam("currency", required = false, defaultValue = "BRL") currency: String,
         @PathVariable("financial_year") financialYear: Int
     ): String {
         val start = LocalDate.of(2000 + (financialYear - 1), 7, 1)
         val end = LocalDate.of(2000 + financialYear, 6, 30)
+
         val taxReport = reportService.getTaxReportData(
             start = start,
-            end = end
+            end = end,
+            currency = currency
         )
+
         model.addAttribute("taxReport", taxReport)
         model.addAttribute("financialYear", financialYear)
+
         model.addAttribute("totalGrossInterestEarned", taxReport.sumOf { it.totalGrossInterestEarned })
         model.addAttribute("totalPaidTax", taxReport.sumOf { it.totalPaidTax })
+
         return "tax_report"
     }
 }
