@@ -3,12 +3,14 @@ package com.adolfoeloy.taxtracker.forex
 import com.adolfoeloy.taxtracker.util.fromCentsToBigDecimal
 import com.adolfoeloy.taxtracker.util.toCents
 import org.springframework.stereotype.Component
+import java.time.LocalDate
 
 @Component
 class ForexService {
 
     fun applyForexRateFor(
         amount: Int,
+        date: LocalDate,
         currencyTicker: String
     ): Int {
         return amount.fromCentsToBigDecimal(scale = 2)

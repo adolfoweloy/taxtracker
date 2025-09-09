@@ -37,15 +37,17 @@ class ReportService(
     private fun getLastDayOf(year: Int, month: Int): Int = LocalDate.of(year, month, 1).lengthOfMonth()
 
     private fun getBalanceReport(month: Int, year: Int, currency: String): List<BalanceReport> {
+        val lastDayOfMonth = LocalDate.of(year, month, getLastDayOf(year, month))
+
         return balanceRepository.findByMonthAndYear(month, year).map { balance ->
             BalanceReport(
                 product = balance.product?.name ?: "Unknown Product",
                 certificate = balance.product?.certificate?.value ?: "Unknown Certificate",
                 issuedAt = balance.product?.issuedAt?.format(dateFormatter) ?: "Unknown Issue Date",
                 maturityDate = balance.product?.matureAt?.format(dateFormatter) ?: "Unknown Maturity Date",
-                principal = forexService.applyForexRateFor(balance.principal, currency),
-                interest = forexService.applyForexRateFor(balance.interest, currency),
-                estimatedBrlTax = forexService.applyForexRateFor(balance.brTax, currency)
+                principal = forexService.applyForexRateFor(balance.principal, lastDayOfMonth, currency),
+                interest = forexService.applyForexRateFor(balance.interest, lastDayOfMonth, currency),
+                estimatedBrlTax = forexService.applyForexRateFor(balance.brTax, lastDayOfMonth, currency)
             )
         }
     }
@@ -58,11 +60,11 @@ class ReportService(
                 issuedAt = transaction.product?.issuedAt?.format(dateFormatter) ?: "Unknown Issue Date",
                 matureAt = transaction.product?.matureAt?.format(dateFormatter) ?: "Unknown Maturity Date",
                 paymentAt = transaction.paymentDate.format(dateFormatter),
-                principal = forexService.applyForexRateFor(transaction.principal, currency),
-                redemption = forexService.applyForexRateFor(transaction.redemption, currency),
-                interest = forexService.applyForexRateFor(transaction.interest, currency),
-                brTax = forexService.applyForexRateFor(transaction.brTax, currency),
-                credit = forexService.applyForexRateFor(transaction.credited, currency),
+                principal = forexService.applyForexRateFor(transaction.principal, transaction.paymentDate, currency),
+                redemption = forexService.applyForexRateFor(transaction.redemption, transaction.paymentDate, currency),
+                interest = forexService.applyForexRateFor(transaction.interest, transaction.paymentDate, currency),
+                brTax = forexService.applyForexRateFor(transaction.brTax, transaction.paymentDate, currency),
+                credit = forexService.applyForexRateFor(transaction.credited, transaction.paymentDate, currency),
                 description = transaction.description,
                 brToAuForex = transaction.brToAuForex
             )
@@ -91,7 +93,7 @@ class ReportService(
             val totalInterest = transactionRepository
                 .findByMonthAndYear(tmpCurrent.monthValue, tmpCurrent.year)
                     .sumOf {
-                        transaction -> forexService.applyForexRateFor(transaction.interest, currency)
+                        transaction -> forexService.applyForexRateFor(transaction.interest, transaction.paymentDate, currency)
                     }
 
             // there are months that I can't figure out the right figures, so unfortunately I skip them and can't claim FITO
@@ -101,16 +103,19 @@ class ReportService(
                 transactionRepository
                     .findByMonthAndYear(tmpCurrent.monthValue, tmpCurrent.year)
                     .sumOf {
-                            transaction -> forexService.applyForexRateFor(transaction.brTax, currency)
+                            transaction -> forexService.applyForexRateFor(transaction.brTax, transaction.paymentDate, currency)
                     }
             }
 
             // balance difference
+            val previousMonthLastDay = LocalDate.of(previousMonth.year, previousMonth.monthValue, getLastDayOf(previousMonth.year, previousMonth.monthValue))
+            val currentMonthLastDay = LocalDate.of(tmpCurrent.year, tmpCurrent.monthValue, getLastDayOf(tmpCurrent.year, tmpCurrent.monthValue))
+
             val previousBalanceInterest = previousBalance.sumOf {
-                forexService.applyForexRateFor(it.interest, currency)
+                forexService.applyForexRateFor(it.interest, previousMonthLastDay, currency)
             }
             val currentBalanceInterest = currentBalance.sumOf {
-                forexService.applyForexRateFor(it.interest, currency)
+                forexService.applyForexRateFor(it.interest, currentMonthLastDay, currency)
             }
             val totalGrossInterest = (currentBalanceInterest + totalInterest) - previousBalanceInterest
 

@@ -5,10 +5,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.assertj.core.api.Assertions.assertThat
+import java.time.LocalDate
 
 class ForexServiceTest {
 
     private lateinit var forexService: ForexService
+    private val dummyDate = LocalDate.of(2024, 1, 15) // Dummy date for testing
 
     @BeforeEach
     fun setUp() {
@@ -27,7 +29,7 @@ class ForexServiceTest {
             val targetCurrency = "AUD"
 
             // When
-            val result = forexService.applyForexRateFor(brlAmountInCents, targetCurrency)
+            val result = forexService.applyForexRateFor(brlAmountInCents, dummyDate, targetCurrency)
 
             // Then
             // Converting FROM BRL TO AUD: 100.00 BRL * 0.271244 AUD/BRL = 27.1244 AUD = 2712 cents (rounded with HALF_EVEN)
@@ -42,7 +44,7 @@ class ForexServiceTest {
             val targetCurrency = "AUD"
 
             // When
-            val result = forexService.applyForexRateFor(brlAmountInCents, targetCurrency)
+            val result = forexService.applyForexRateFor(brlAmountInCents, dummyDate, targetCurrency)
 
             // Then
             // Converting FROM BRL TO AUD: 1.00 BRL * 0.271244 AUD/BRL = 0.271244 AUD = 27 cents (rounded with HALF_EVEN)
@@ -57,7 +59,7 @@ class ForexServiceTest {
             val targetCurrency = "AUD"
 
             // When
-            val result = forexService.applyForexRateFor(brlAmountInCents, targetCurrency)
+            val result = forexService.applyForexRateFor(brlAmountInCents, dummyDate, targetCurrency)
 
             // Then
             // Converting FROM BRL TO AUD: 1,000,000.00 BRL * 0.271244 AUD/BRL = 271,244.00 AUD = 27124400 cents
@@ -72,7 +74,7 @@ class ForexServiceTest {
             val targetCurrency = "BRL"
 
             // When
-            val result = forexService.applyForexRateFor(brlAmountInCents, targetCurrency)
+            val result = forexService.applyForexRateFor(brlAmountInCents, dummyDate, targetCurrency)
 
             // Then
             // BRL to BRL should be 1:1, rate is 1000000 which becomes 1.000000 after movePointLeft(6)
@@ -88,7 +90,7 @@ class ForexServiceTest {
             val unknownCurrency = "USD"
 
             // When
-            val result = forexService.applyForexRateFor(brlAmountInCents, unknownCurrency)
+            val result = forexService.applyForexRateFor(brlAmountInCents, dummyDate, unknownCurrency)
 
             // Then
             // Unknown currencies fallback to BRL rate (1000000 -> 1.000000), so amount should remain the same
@@ -103,7 +105,7 @@ class ForexServiceTest {
             val targetCurrency = "AUD"
 
             // When
-            val result = forexService.applyForexRateFor(zeroAmount, targetCurrency)
+            val result = forexService.applyForexRateFor(zeroAmount, dummyDate, targetCurrency)
 
             // Then
             assertThat(result).isEqualTo(0)
@@ -117,7 +119,7 @@ class ForexServiceTest {
             val targetCurrency = "AUD"
 
             // When
-            val result = forexService.applyForexRateFor(negativeBrlAmount, targetCurrency)
+            val result = forexService.applyForexRateFor(negativeBrlAmount, dummyDate, targetCurrency)
 
             // Then
             // Converting FROM BRL TO AUD: -100.00 BRL * 0.271244 AUD/BRL = -27.1244 AUD = -2712 cents (rounded with HALF_EVEN)
@@ -132,7 +134,7 @@ class ForexServiceTest {
             val lowerCaseAud = "aud"
 
             // When
-            val result = forexService.applyForexRateFor(brlAmountInCents, lowerCaseAud)
+            val result = forexService.applyForexRateFor(brlAmountInCents, dummyDate, lowerCaseAud)
 
             // Then
             // "aud" != "AUD", so it falls back to BRL rate (1000000 -> 1.000000), amount remains the same
@@ -147,7 +149,7 @@ class ForexServiceTest {
             val emptyCurrency = ""
 
             // When
-            val result = forexService.applyForexRateFor(brlAmountInCents, emptyCurrency)
+            val result = forexService.applyForexRateFor(brlAmountInCents, dummyDate, emptyCurrency)
 
             // Then
             // Empty string falls back to BRL rate (1000000 -> 1.000000), amount remains the same
@@ -162,7 +164,7 @@ class ForexServiceTest {
             val targetCurrency = "AUD"
 
             // When
-            val result = forexService.applyForexRateFor(brlAmountInCents, targetCurrency)
+            val result = forexService.applyForexRateFor(brlAmountInCents, dummyDate, targetCurrency)
 
             // Then
             // Converting FROM BRL TO AUD: 0.37 BRL * 0.271244 AUD/BRL = 0.10036028 AUD = 10 cents (rounded with HALF_EVEN)
@@ -177,7 +179,7 @@ class ForexServiceTest {
             val targetCurrency = "AUD"
 
             // When
-            val result = forexService.applyForexRateFor(brlAmountInCents, targetCurrency)
+            val result = forexService.applyForexRateFor(brlAmountInCents, dummyDate, targetCurrency)
 
             // Then
             // Converting FROM BRL TO AUD: 10.00 BRL * 0.271244 AUD/BRL = 2.71244 AUD = 271 cents (rounded with HALF_EVEN)
@@ -192,7 +194,7 @@ class ForexServiceTest {
             val targetCurrency = "AUD"
 
             // When
-            val result = forexService.applyForexRateFor(brlAmountInCents, targetCurrency)
+            val result = forexService.applyForexRateFor(brlAmountInCents, dummyDate, targetCurrency)
 
             // Then
             // Converting FROM BRL TO AUD: 3.69 BRL * 0.271244 AUD/BRL = 1.00089036 AUD = 100 cents (rounded with HALF_EVEN)
@@ -207,7 +209,7 @@ class ForexServiceTest {
             val targetCurrency = "AUD"
 
             // When
-            val result = forexService.applyForexRateFor(brlAmountInCents, targetCurrency)
+            val result = forexService.applyForexRateFor(brlAmountInCents, dummyDate, targetCurrency)
 
             // Then
             // Converting FROM BRL TO AUD: 18.45 BRL * 0.271244 AUD/BRL = 5.0044518 AUD = 500 cents (rounded with HALF_EVEN)
