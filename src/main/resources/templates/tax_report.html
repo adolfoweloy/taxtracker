@@ -94,6 +94,13 @@
             <td>[[${entry.currencyTicker}]]</td>
         </tr>
         </tbody>
+        <tfoot>
+        <tr>
+            <td><strong>Total</strong></td>
+            <td><strong>[[${@numberUtils.fromCents(totalGrossInterestEarned)}]]</strong></td>
+            <td><strong>[[${@numberUtils.fromCents(totalPaidTax)}]]</strong></td>
+            <td></td>
+        </tfoot>
     </table>
 </section>
 </html>
