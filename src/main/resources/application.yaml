@@ -11,6 +11,10 @@ spring:
     enabled: true
 
 tax:
+  currencyBeacon:
+    baseUrl: https://api.currencybeacon.com/v1
+    apiKey: ${CURRENCYBEACON_API_KEY:}
+    enabled: false
   skipPaidFor:
     - 202411
     - 202504

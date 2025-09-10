@@ -1,12 +1,15 @@
 package com.adolfoeloy.taxtracker.forex
 
+import com.adolfoeloy.taxtracker.properties.TaxProperties
 import com.adolfoeloy.taxtracker.util.fromCentsToBigDecimal
 import com.adolfoeloy.taxtracker.util.toCents
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 
 @Component
-class ForexService {
+class ForexService(
+    taxProperties: TaxProperties
+) {
 
     fun applyForexRateFor(
         amount: Int,

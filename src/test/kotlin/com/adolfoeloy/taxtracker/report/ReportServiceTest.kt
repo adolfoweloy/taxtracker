@@ -5,6 +5,7 @@ import com.adolfoeloy.taxtracker.balance.BalanceRepository
 import com.adolfoeloy.taxtracker.forex.ForexService
 import com.adolfoeloy.taxtracker.product.Certificate
 import com.adolfoeloy.taxtracker.product.Product
+import com.adolfoeloy.taxtracker.properties.TaxProperties
 import com.adolfoeloy.taxtracker.transaction.TransactionRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -31,7 +32,7 @@ class ReportServiceTest {
 
     @BeforeEach
     fun setUp() {
-        subject = ReportService(balanceRepository, transactionRepository, ForexService(), TaxProperties())
+        subject = ReportService(balanceRepository, transactionRepository, ForexService(TaxProperties()), TaxProperties())
     }
 
     @Test

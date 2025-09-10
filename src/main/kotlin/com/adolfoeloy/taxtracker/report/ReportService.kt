@@ -2,6 +2,7 @@ package com.adolfoeloy.taxtracker.report
 
 import com.adolfoeloy.taxtracker.balance.BalanceRepository
 import com.adolfoeloy.taxtracker.forex.ForexService
+import com.adolfoeloy.taxtracker.properties.TaxProperties
 import com.adolfoeloy.taxtracker.transaction.TransactionRepository
 import com.adolfoeloy.taxtracker.util.toYearMonthString
 import org.springframework.stereotype.Component
