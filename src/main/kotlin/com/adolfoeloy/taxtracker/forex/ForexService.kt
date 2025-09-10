@@ -1,6 +1,6 @@
 package com.adolfoeloy.taxtracker.forex
 
-import com.adolfoeloy.taxtracker.properties.TaxProperties
+import com.adolfoeloy.taxtracker.forex.provider.ForexProvider
 import com.adolfoeloy.taxtracker.util.fromCentsToBigDecimal
 import com.adolfoeloy.taxtracker.util.toCents
 import org.springframework.stereotype.Component
@@ -8,7 +8,7 @@ import java.time.LocalDate
 
 @Component
 class ForexService(
-    taxProperties: TaxProperties
+    private val forexProvider: ForexProvider
 ) {
 
     fun applyForexRateFor(
@@ -18,16 +18,10 @@ class ForexService(
     ): Int {
         return amount.fromCentsToBigDecimal(scale = 2)
             .multiply(
-                getForexRate(currencyTicker).getBigDecimalRate()
+                forexProvider.getRate(currencyTicker, date)?.getBigDecimalRate()
+                    ?: throw IllegalArgumentException("No forex rate found for $currencyTicker on $date")
             )
             .toCents(scale = 2)
-    }
-
-    private fun getForexRate(currencyTicker: String): ForexRate {
-        return when (currencyTicker) {
-            "AUD" -> ForexRate("AUD", 271_244) // 0.271244 BRL
-            else -> ForexRate("BRL", 1_000_000) // Default rate for BRL or unknown currencies
-        }
     }
 
 }

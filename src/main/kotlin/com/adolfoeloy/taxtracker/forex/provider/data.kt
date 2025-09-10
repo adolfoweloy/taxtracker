@@ -1,4 +1,4 @@
-package com.adolfoeloy.taxtracker.forex;
+package com.adolfoeloy.taxtracker.forex.provider
 
 import java.math.BigDecimal
 import java.math.RoundingMode

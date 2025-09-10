@@ -3,6 +3,7 @@ package com.adolfoeloy.taxtracker.report
 import com.adolfoeloy.taxtracker.balance.Balance
 import com.adolfoeloy.taxtracker.balance.BalanceRepository
 import com.adolfoeloy.taxtracker.forex.ForexService
+import com.adolfoeloy.taxtracker.forex.provider.LocalForexProvider
 import com.adolfoeloy.taxtracker.product.Certificate
 import com.adolfoeloy.taxtracker.product.Product
 import com.adolfoeloy.taxtracker.properties.TaxProperties
@@ -32,7 +33,7 @@ class ReportServiceTest {
 
     @BeforeEach
     fun setUp() {
-        subject = ReportService(balanceRepository, transactionRepository, ForexService(TaxProperties()), TaxProperties())
+        subject = ReportService(balanceRepository, transactionRepository, ForexService(LocalForexProvider()), TaxProperties())
     }
 
     @Test

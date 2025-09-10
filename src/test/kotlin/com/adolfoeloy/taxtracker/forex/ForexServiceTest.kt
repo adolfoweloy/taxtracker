@@ -1,28 +1,21 @@
 package com.adolfoeloy.taxtracker.forex
 
-import com.adolfoeloy.taxtracker.properties.TaxProperties
+import com.adolfoeloy.taxtracker.forex.provider.LocalForexProvider
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mock
-import org.mockito.junit.jupiter.MockitoExtension
 import java.time.LocalDate
 
-@ExtendWith(MockitoExtension::class)
 class ForexServiceTest {
 
     private lateinit var forexService: ForexService
     private val dummyDate = LocalDate.of(2024, 1, 15) // Dummy date for testing
 
-    @Mock
-    private lateinit var taxProperties: TaxProperties
-
     @BeforeEach
     fun setUp() {
-        forexService = ForexService(taxProperties)
+        forexService = ForexService(LocalForexProvider())
     }
 
     @Nested
