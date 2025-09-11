@@ -6,16 +6,24 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoExtension
 import java.time.LocalDate
 
+@ExtendWith(MockitoExtension::class)
 class ForexServiceTest {
 
+    @Mock
+    private lateinit var exchangeRateRepositoryMock: ExchangeRateRepository
+
     private lateinit var forexService: ForexService
+
     private val dummyDate = LocalDate.of(2024, 1, 15) // Dummy date for testing
 
     @BeforeEach
     fun setUp() {
-        forexService = ForexService(LocalForexProvider())
+        forexService = ForexService(LocalForexProvider(), exchangeRateRepositoryMock)
     }
 
     @Nested

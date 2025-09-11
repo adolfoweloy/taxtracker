@@ -19,3 +19,5 @@ data class ForexRate(
         return "$ticker: $rate"
     }
 }
+
+class ForexRateException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)

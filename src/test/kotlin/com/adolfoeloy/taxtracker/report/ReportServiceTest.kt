@@ -2,6 +2,7 @@ package com.adolfoeloy.taxtracker.report
 
 import com.adolfoeloy.taxtracker.balance.Balance
 import com.adolfoeloy.taxtracker.balance.BalanceRepository
+import com.adolfoeloy.taxtracker.forex.ExchangeRateRepository
 import com.adolfoeloy.taxtracker.forex.ForexService
 import com.adolfoeloy.taxtracker.forex.provider.LocalForexProvider
 import com.adolfoeloy.taxtracker.product.Certificate
@@ -24,16 +25,23 @@ import java.time.Month
 class ReportServiceTest {
 
     @Mock
-    private lateinit var balanceRepository: BalanceRepository
+    private lateinit var balanceRepositoryMock: BalanceRepository
 
     @Mock
-    private lateinit var transactionRepository: TransactionRepository
+    private lateinit var transactionRepositoryMock: TransactionRepository
+
+    @Mock
+    private lateinit var exchangeRateRepositoryMock: ExchangeRateRepository
 
     private lateinit var subject: ReportService
 
     @BeforeEach
     fun setUp() {
-        subject = ReportService(balanceRepository, transactionRepository, ForexService(LocalForexProvider()), TaxProperties())
+        subject = ReportService(
+            balanceRepositoryMock,
+            transactionRepositoryMock,
+            ForexService(LocalForexProvider(), exchangeRateRepositoryMock), TaxProperties()
+        )
     }
 
     @Test
@@ -42,12 +50,12 @@ class ReportServiceTest {
         val start = LocalDate.of(2024, Month.MAY, 1)
         val end = LocalDate.of(2024, Month.MAY, 31)
         // previous month
-        whenever(balanceRepository.findByMonthAndYear(4, 2024))
+        whenever(balanceRepositoryMock.findByMonthAndYear(4, 2024))
             .thenReturn(balanceWithTwoProductsFor(start.month.value, start.year))
         // current month
-        whenever(balanceRepository.findByMonthAndYear(5, 2024))
+        whenever(balanceRepositoryMock.findByMonthAndYear(5, 2024))
             .thenReturn(balanceWithTwoProductsFor(end.month.value, end.year, interestIncrement = 1_000))
-        whenever(transactionRepository.findByMonthAndYear(5, 2024))
+        whenever(transactionRepositoryMock.findByMonthAndYear(5, 2024))
             .thenReturn(emptyList())
 
         // Act

@@ -23,12 +23,13 @@ class CurrencyBeaconClient(
 
     private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
-    override fun getRate(ticker: String, date: LocalDate): ForexRate? {
+    override fun getRate(ticker: String, date: LocalDate): ForexRate {
         if (ticker == "BRL") {
-            return ForexRate("BRL", 100_000_000, 8) // 1 BRL = 1 BRL
+            return ForexRate("BRL", 100_000_000, getRateScale()) // 1 BRL = 1 BRL
         }
 
-        val currencyBeacon = taxProperties.currencyBeacon ?: return null
+        val currencyBeacon = taxProperties.currencyBeacon
+            ?: throw IllegalStateException("CurrencyBeacon properties not configured")
 
         val url = "${currencyBeacon.baseUrl}/historical"
         val formattedDate = date.format(dateFormatter)
@@ -54,27 +55,30 @@ class CurrencyBeaconClient(
                     if (rate != null) {
                         // Convert the decimal rate to integer cents format (multiply by 100,000,000)
                         val rateInCents = (rate * 100_000_000).toInt()
-                        ForexRate(ticker, rateInCents, 8)
+                        ForexRate(ticker, rateInCents, getRateScale())
                     } else {
-                        null
+                        throw ForexRateException("Rate for $ticker not found in response")
                     }
                 } else {
-                    null
+                    // TODO: log the details instead of having the response body in the exception
+                    throw ForexRateException("Invalid response from CurrencyBeacon: ${response.body}")
                 }
             } else {
-                throw RuntimeException(
+                throw ForexRateException(
                     "Failed to fetch forex rate: ${response.statusCode} ${response.body}"
                 )
             }
 
 
         } catch (e: Exception) {
-            // Log the error and return null for fallback behavior
-            throw RuntimeException(
-                "Error fetching forex rate for $ticker on $date: ${e.message}"
+            throw ForexRateException(
+                message = "Error fetching forex rate for $ticker on $date: ${e.message}",
+                cause = e
             )
         }
     }
+
+    override fun getRateScale() = 8
 }
 
 data class CurrencyBeaconResponse(
