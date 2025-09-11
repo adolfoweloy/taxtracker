@@ -30,8 +30,6 @@ class ReportServiceTest {
     @Mock
     private lateinit var transactionRepositoryMock: TransactionRepository
 
-    @Mock
-    private lateinit var exchangeRateRepositoryMock: ExchangeRateRepository
 
     private lateinit var subject: ReportService
 
@@ -40,7 +38,9 @@ class ReportServiceTest {
         subject = ReportService(
             balanceRepositoryMock,
             transactionRepositoryMock,
-            DefaultForexService(LocalForexProvider()), TaxProperties()
+            DefaultForexService(LocalForexProvider()),
+            LocalForexProvider(),
+            TaxProperties(),
         )
     }
 

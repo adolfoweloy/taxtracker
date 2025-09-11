@@ -15,7 +15,7 @@ class ReportController(
 ) {
 
     @GetMapping("/{month}/{year}")
-    fun index(
+    fun interestByMonthAndYear(
         model: Model,
         @RequestParam("currency", required = false, defaultValue = "BRL") currency: String,
         @PathVariable month: Int,
@@ -35,7 +35,7 @@ class ReportController(
     }
 
     @GetMapping("/tax/{financial_year}")
-    fun tax(
+    fun interestFYSummary(
         model: Model,
         @RequestParam("currency", required = false, defaultValue = "BRL") currency: String,
         @PathVariable("financial_year") financialYear: Int

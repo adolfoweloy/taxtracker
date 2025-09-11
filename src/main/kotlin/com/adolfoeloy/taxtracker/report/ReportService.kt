@@ -2,8 +2,10 @@ package com.adolfoeloy.taxtracker.report
 
 import com.adolfoeloy.taxtracker.balance.BalanceRepository
 import com.adolfoeloy.taxtracker.forex.ForexService
+import com.adolfoeloy.taxtracker.forex.provider.ForexProvider
 import com.adolfoeloy.taxtracker.properties.TaxProperties
 import com.adolfoeloy.taxtracker.transaction.TransactionRepository
+import com.adolfoeloy.taxtracker.util.fromCentsToBigDecimal
 import com.adolfoeloy.taxtracker.util.toYearMonthString
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -14,12 +16,17 @@ class ReportService(
     private val balanceRepository: BalanceRepository,
     private val transactionRepository: TransactionRepository,
     private val forexService: ForexService,
+    private val forexProvider: ForexProvider,
     private val taxProperties: TaxProperties
 ) {
     private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
     fun getReportData(month: Int, year: Int, currency: String): ReportData {
-        val balanceBefore = getBalanceReport(month - 1, year, currency)
+        val currentDate = LocalDate.of(year, month, 1)
+        val previousBalanceDate = currentDate.minusMonths(1)
+
+
+        val balanceBefore = getBalanceReport(previousBalanceDate.month.value, previousBalanceDate.year, currency)
         val balanceNow = getBalanceReport(month, year, currency)
         val transactions = getTransactionsReport(month, year, currency)
 
@@ -28,7 +35,7 @@ class ReportService(
                 from = "${year}-${month}-01",
                 to = "${year}-${month}-${getLastDayOf(year, month)}"
             ),
-            balanceBefore = Balance(balanceAt = "${year}-${month - 1}-01", entries = balanceBefore),
+            balanceBefore = Balance(balanceAt = "${previousBalanceDate.year}-${previousBalanceDate.month.value}-01", entries = balanceBefore),
             balanceNow = Balance(balanceAt = "${year}-${month}-01", entries = balanceNow),
             transactions = Transactions(entries = transactions),
             currencyTicker = currency
@@ -67,7 +74,7 @@ class ReportService(
                 brTax = forexService.applyForexRateFor(transaction.brTax, transaction.paymentDate, currency),
                 credit = forexService.applyForexRateFor(transaction.credited, transaction.paymentDate, currency),
                 description = transaction.description,
-                brToAuForex = transaction.brToAuForex
+                brToAuForex = forexProvider.getRate(currency, transaction.paymentDate).rate.fromCentsToBigDecimal(forexProvider.getRateScale())
             )
         }
     }

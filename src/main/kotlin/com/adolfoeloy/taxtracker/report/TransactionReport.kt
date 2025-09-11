@@ -1,5 +1,7 @@
 package com.adolfoeloy.taxtracker.report
 
+import java.math.BigDecimal
+
 data class TransactionReport(
     val product: String,
     val certificate: String,
@@ -12,5 +14,5 @@ data class TransactionReport(
     val brTax: Int,
     val credit: Int,
     val description: String,
-    val brToAuForex: Int
+    val brToAuForex: BigDecimal
 )
