@@ -17,14 +17,14 @@ class ForexServiceTest {
 
     private val dummyDate = LocalDate.of(2024, 1, 15) // Dummy date for testing
 
-    @BeforeEach
-    fun setUp() {
-        forexService = DefaultForexService(LocalForexProvider())
-    }
-
     @Nested
-    @DisplayName("applyForexRateFor tests - converting FROM BRL TO target currency")
-    inner class ApplyForexRateForTests {
+    @DisplayName("applyForexRateFor tests - converting FROM BRL TO target currency using LocalForexProvider")
+    inner class UseLocalForexProvider {
+
+        @BeforeEach
+        fun setUp() {
+            forexService = DefaultForexService(LocalForexProvider())
+        }
 
         @Test
         @DisplayName("should convert BRL to AUD correctly")
