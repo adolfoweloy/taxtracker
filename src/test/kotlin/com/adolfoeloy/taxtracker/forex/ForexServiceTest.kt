@@ -23,7 +23,7 @@ class ForexServiceTest {
 
     @BeforeEach
     fun setUp() {
-        forexService = ForexService(LocalForexProvider(), exchangeRateRepositoryMock)
+        forexService = DefaultForexService(LocalForexProvider(), exchangeRateRepositoryMock)
     }
 
     @Nested

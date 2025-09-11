@@ -3,7 +3,7 @@ package com.adolfoeloy.taxtracker.report
 import com.adolfoeloy.taxtracker.balance.Balance
 import com.adolfoeloy.taxtracker.balance.BalanceRepository
 import com.adolfoeloy.taxtracker.forex.ExchangeRateRepository
-import com.adolfoeloy.taxtracker.forex.ForexService
+import com.adolfoeloy.taxtracker.forex.DefaultForexService
 import com.adolfoeloy.taxtracker.forex.provider.LocalForexProvider
 import com.adolfoeloy.taxtracker.product.Certificate
 import com.adolfoeloy.taxtracker.product.Product
@@ -40,7 +40,7 @@ class ReportServiceTest {
         subject = ReportService(
             balanceRepositoryMock,
             transactionRepositoryMock,
-            ForexService(LocalForexProvider(), exchangeRateRepositoryMock), TaxProperties()
+            DefaultForexService(LocalForexProvider(), exchangeRateRepositoryMock), TaxProperties()
         )
     }
 
