@@ -4,13 +4,11 @@ import com.adolfoeloy.taxtracker.forex.provider.ForexProvider
 import com.adolfoeloy.taxtracker.util.fromCentsToBigDecimal
 import com.adolfoeloy.taxtracker.util.toCents
 import org.springframework.stereotype.Component
-import java.math.BigDecimal
 import java.time.LocalDate
 
 @Component
 class DefaultForexService(
-    private val forexProvider: ForexProvider,
-    private val exchangeRateRepository: ExchangeRateRepository
+    private val forexProvider: ForexProvider
 ) : ForexService {
 
     /**
@@ -25,7 +23,7 @@ class DefaultForexService(
         date: LocalDate,
         currencyTicker: String
     ): Int {
-        val forexRate = getForexRateFor(currencyTicker, date)
+        val forexRate = forexProvider.getRate(currencyTicker, date).rate
         val bigDecimalForexRate = forexRate.fromCentsToBigDecimal(forexProvider.getRateScale())
 
         return amount.fromCentsToBigDecimal(scale = 2)
@@ -33,31 +31,4 @@ class DefaultForexService(
             .toCents(scale = 2)
     }
 
-    /**
-     * TODO: this should be implemented as a decorator around ForexService.
-     */
-    override fun getForexRateFor(
-        currencyTicker: String,
-        date: LocalDate
-    ): Int {
-        val exchangeRateFromDB = exchangeRateRepository.findBySourceAndTargetAndRateAt(
-            source = "BRL",
-            target = currencyTicker,
-            rateAt = date
-        )
-
-        if (exchangeRateFromDB != null) {
-            return exchangeRateFromDB.rate
-        } else {
-            val exchangeRateFromProvider = forexProvider.getRate(currencyTicker, date)
-            val exchangeRateToSave = ExchangeRate().apply {
-                source = "BRL"
-                target = currencyTicker
-                rateAt = date
-                rate = exchangeRateFromProvider.rate
-            }
-            exchangeRateRepository.save(exchangeRateToSave)
-            return exchangeRateFromProvider.rate
-        }
-    }
 }

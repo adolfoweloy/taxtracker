@@ -1,6 +1,5 @@
 package com.adolfoeloy.taxtracker.forex
 
-import java.math.BigDecimal
 import java.time.LocalDate
 
 /**
@@ -21,14 +20,4 @@ interface ForexService {
         currencyTicker: String
     ): Int
 
-    /**
-     * Get the forex rate for a given currency and date.
-     * @param currencyTicker Currency ticker (e.g., "USD", "EUR")
-     * @param date Date for which the forex rate should be retrieved
-     * @return The forex rate as a BigDecimal
-     */
-    fun getForexRateFor(
-        currencyTicker: String,
-        date: LocalDate
-    ): Int
 }

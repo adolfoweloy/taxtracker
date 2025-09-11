@@ -1,16 +1,8 @@
 package com.adolfoeloy.taxtracker.forex.provider
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.stereotype.Component
 import java.time.LocalDate
 import kotlin.math.pow
 
-@ConditionalOnProperty(
-    prefix = "tax.currencyBeacon",
-    name = ["enabled"],
-    havingValue = "false"
-)
-@Component
 class LocalForexProvider : ForexProvider {
 
     override fun getRate(ticker: String, date: LocalDate): ForexRate {

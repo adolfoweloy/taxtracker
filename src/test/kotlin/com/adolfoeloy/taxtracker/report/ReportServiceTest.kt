@@ -40,7 +40,7 @@ class ReportServiceTest {
         subject = ReportService(
             balanceRepositoryMock,
             transactionRepositoryMock,
-            DefaultForexService(LocalForexProvider(), exchangeRateRepositoryMock), TaxProperties()
+            DefaultForexService(LocalForexProvider()), TaxProperties()
         )
     }
 
