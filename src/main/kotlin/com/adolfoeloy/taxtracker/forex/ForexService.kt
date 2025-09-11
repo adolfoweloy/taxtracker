@@ -30,5 +30,5 @@ interface ForexService {
     fun getForexRateFor(
         currencyTicker: String,
         date: LocalDate
-    ): BigDecimal
+    ): Int
 }

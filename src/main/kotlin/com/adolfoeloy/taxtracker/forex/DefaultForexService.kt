@@ -25,8 +25,12 @@ class DefaultForexService(
         date: LocalDate,
         currencyTicker: String
     ): Int {
+        val forexRate = getForexRateFor(currencyTicker, date)
+        val bigDecimalForexRate = forexRate.fromCentsToBigDecimal(forexProvider.getRateScale())
+
         return amount.fromCentsToBigDecimal(scale = 2)
-            .multiply(getForexRateFor(currencyTicker, date)).toCents(scale = 2)
+            .multiply(bigDecimalForexRate)
+            .toCents(scale = 2)
     }
 
     /**
@@ -35,7 +39,7 @@ class DefaultForexService(
     override fun getForexRateFor(
         currencyTicker: String,
         date: LocalDate
-    ): BigDecimal {
+    ): Int {
         val exchangeRateFromDB = exchangeRateRepository.findBySourceAndTargetAndRateAt(
             source = "BRL",
             target = currencyTicker,
@@ -43,7 +47,7 @@ class DefaultForexService(
         )
 
         if (exchangeRateFromDB != null) {
-            return exchangeRateFromDB.rate.fromCentsToBigDecimal(forexProvider.getRateScale())
+            return exchangeRateFromDB.rate
         } else {
             val exchangeRateFromProvider = forexProvider.getRate(currencyTicker, date)
             val exchangeRateToSave = ExchangeRate().apply {
@@ -53,7 +57,7 @@ class DefaultForexService(
                 rate = exchangeRateFromProvider.rate
             }
             exchangeRateRepository.save(exchangeRateToSave)
-            return exchangeRateFromProvider.rate.fromCentsToBigDecimal(forexProvider.getRateScale())
+            return exchangeRateFromProvider.rate
         }
     }
 }
