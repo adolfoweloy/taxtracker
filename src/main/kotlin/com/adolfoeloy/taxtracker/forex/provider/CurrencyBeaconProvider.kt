@@ -1,23 +1,15 @@
 package com.adolfoeloy.taxtracker.forex.provider
 
 import com.adolfoeloy.taxtracker.properties.TaxProperties
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
-import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-@ConditionalOnProperty(
-    prefix = "tax.currencyBeacon",
-    name = ["enabled"],
-    havingValue = "true"
-)
-@Component
-class CurrencyBeaconClient(
+class CurrencyBeaconProvider(
     private val taxProperties: TaxProperties,
     private val restTemplate: RestTemplate
 ) : ForexProvider {

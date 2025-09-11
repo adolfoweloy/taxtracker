@@ -5,8 +5,8 @@ import java.math.RoundingMode
 
 data class ForexRate(
     val ticker: String,
-    val rate: Int = 1, // Default rate is 1 for BRL
-    val scale: Int = 6 // Default scale is 6 (e.g., 1.000000 for BRL
+    val rate: Int,
+    val scale: Int
 ) {
 
     fun getBigDecimalRate(): BigDecimal {
