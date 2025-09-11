@@ -23,8 +23,8 @@ class DefaultForexService(
         date: LocalDate,
         currencyTicker: String
     ): Int {
-        val forexRate = forexProvider.getRate(currencyTicker, date).rate
-        val bigDecimalForexRate = forexRate.fromCentsToBigDecimal(forexProvider.getRateScale())
+        val forexRate = forexProvider.getRate(currencyTicker, date)
+        val bigDecimalForexRate = forexRate.rate.fromCentsToBigDecimal(forexRate.scale)
 
         return amount.fromCentsToBigDecimal(scale = 2)
             .multiply(bigDecimalForexRate)

@@ -3,6 +3,7 @@ package com.adolfoeloy.taxtracker.forex.provider
 import com.adolfoeloy.taxtracker.forex.ExchangeRate
 import com.adolfoeloy.taxtracker.forex.ExchangeRateRepository
 import java.time.LocalDate
+import kotlin.math.pow
 
 class ForexProviderDBDecorator(
     private val decorated: ForexProvider,
@@ -12,6 +13,13 @@ class ForexProviderDBDecorator(
         ticker: String,
         date: LocalDate
     ): ForexRate {
+        if (ticker == "BRL") {
+            return ForexRate(
+                ticker = "BRL",
+                rate = 10.toDouble().pow(getRateScale().toDouble()).toInt(),
+                scale = getRateScale()
+            )
+        }
 
         val exchangeRateFromDB = exchangeRateRepository.findBySourceAndTargetAndRateAt(
             source = "BRL",
@@ -28,6 +36,7 @@ class ForexProviderDBDecorator(
                 target = ticker
                 rateAt = date
                 rate = exchangeRateFromProvider.rate
+                scale = getRateScale()
             }
             exchangeRateRepository.save(exchangeRateToSave)
 

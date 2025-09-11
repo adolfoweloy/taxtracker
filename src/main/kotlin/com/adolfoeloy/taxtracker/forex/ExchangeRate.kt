@@ -24,4 +24,6 @@ class ExchangeRate {
     var rateAt: LocalDate = LocalDate.now()
 
     var rate: Int = 0
+
+    var scale: Int = 6
 }

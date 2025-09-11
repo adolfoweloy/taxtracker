@@ -20,6 +20,7 @@ class ExchangeRateRepositoryIT : AbstractDatabaseIntegrationTest() {
             target = "BRL"
             rateAt = LocalDate.of(2025, 9, 11)
             rate = 26715019
+            scale = 6
         }
 
         // Act
@@ -33,6 +34,7 @@ class ExchangeRateRepositoryIT : AbstractDatabaseIntegrationTest() {
         assertThat(retrievedExchangeRate?.rateAt).isEqualTo(LocalDate.of(2025, 9, 11))
         assertThat(retrievedExchangeRate?.rate).isEqualTo(26715019)
         assertThat(retrievedExchangeRate?.id).isGreaterThan(0)
+        assertThat(retrievedExchangeRate?.scale).isEqualTo(6)
     }
 
     @Test
@@ -43,6 +45,7 @@ class ExchangeRateRepositoryIT : AbstractDatabaseIntegrationTest() {
             target = "BRL"
             rateAt = LocalDate.of(2025, 9, 10)
             rate = 30000000
+            scale = 6
         }
         subject.save(exchangeRate)
 
@@ -55,6 +58,7 @@ class ExchangeRateRepositoryIT : AbstractDatabaseIntegrationTest() {
         assertThat(retrievedExchangeRate?.target).isEqualTo("BRL")
         assertThat(retrievedExchangeRate?.rateAt).isEqualTo(LocalDate.of(2025, 9, 10))
         assertThat(retrievedExchangeRate?.rate).isEqualTo(30000000)
+        assertThat(retrievedExchangeRate?.scale).isEqualTo(6)
     }
 
     @Test

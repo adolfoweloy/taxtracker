@@ -1,0 +1,2 @@
+ALTER TABLE exchange_rate
+ADD COLUMN scale INT NOT NULL;
