@@ -35,11 +35,15 @@ class ReportService(
                 from = "${year}-${month}-01",
                 to = "${year}-${month}-${getLastDayOf(year, month)}"
             ),
-            balanceBefore = Balance(balanceAt = "${previousBalanceDate.year}-${previousBalanceDate.month.value}-01", entries = balanceBefore),
-            balanceNow = Balance(balanceAt = "${year}-${month}-01", entries = balanceNow),
+            balanceBefore = Balance(balanceAt = getFormattedDate(previousBalanceDate), entries = balanceBefore),
+            balanceNow = Balance(balanceAt = getFormattedDate(currentDate), entries = balanceNow),
             transactions = Transactions(entries = transactions),
             currencyTicker = currency
         )
+    }
+
+    private fun getFormattedDate(date: LocalDate): String {
+        return "${date.year}-${date.month.value}-${getLastDayOf(date.year, date.month.value)}"
     }
 
     private fun getLastDayOf(year: Int, month: Int): Int = LocalDate.of(year, month, 1).lengthOfMonth()
