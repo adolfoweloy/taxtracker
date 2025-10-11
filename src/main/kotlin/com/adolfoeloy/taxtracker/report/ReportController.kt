@@ -51,12 +51,7 @@ class ReportController(
             currency = currency
         )
 
-        model.addAttribute("taxReport", taxReport)
-        model.addAttribute("financialYear", financialYear)
-
-        model.addAttribute("totalGrossInterestEarned", taxReport.sumOf { it.totalGrossInterestEarned })
-        model.addAttribute("totalPaidTax", taxReport.sumOf { it.totalPaidTax })
-
+        setModel(model, taxReport, financialYear)
         return "tax_report"
     }
 
@@ -78,12 +73,18 @@ class ReportController(
             currency = currency
         )
 
+        setModel(model, taxReport, financialYear)
+        return "tax_report"
+    }
+
+    private fun setModel(
+        model: Model,
+        taxReport: List<TaxReport>,
+        financialYear: Int
+    ) {
         model.addAttribute("taxReport", taxReport)
         model.addAttribute("financialYear", financialYear)
         model.addAttribute("totalGrossInterestEarned", taxReport.sumOf { it.totalGrossInterestEarned })
         model.addAttribute("totalPaidTax", taxReport.sumOf { it.totalPaidTax })
-
-        return "tax_report"
-
     }
 }
