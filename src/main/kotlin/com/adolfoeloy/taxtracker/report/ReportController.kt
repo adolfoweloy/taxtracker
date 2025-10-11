@@ -1,5 +1,7 @@
 package com.adolfoeloy.taxtracker.report
 
+import com.adolfoeloy.taxtracker.util.fromYearMonthString
+import com.adolfoeloy.taxtracker.util.lastDay
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
@@ -56,5 +58,32 @@ class ReportController(
         model.addAttribute("totalPaidTax", taxReport.sumOf { it.totalPaidTax })
 
         return "tax_report"
+    }
+
+    @GetMapping("/installment/{financial_year}")
+    fun installmentReport(
+        model: Model,
+        @PathVariable("financial_year") financialYear: Int,
+        @RequestParam from: String,
+        @RequestParam to: String,
+        @RequestParam("currency", required = false, defaultValue = "BRL") currency: String,
+    ): String {
+
+        val start = from.fromYearMonthString()
+        val end = to.fromYearMonthString().lastDay()
+
+        val taxReport = reportService.getTaxReportData(
+            start = start,
+            end = end,
+            currency = currency
+        )
+
+        model.addAttribute("taxReport", taxReport)
+        model.addAttribute("financialYear", financialYear)
+        model.addAttribute("totalGrossInterestEarned", taxReport.sumOf { it.totalGrossInterestEarned })
+        model.addAttribute("totalPaidTax", taxReport.sumOf { it.totalPaidTax })
+
+        return "tax_report"
+
     }
 }
