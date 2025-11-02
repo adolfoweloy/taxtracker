@@ -23,6 +23,12 @@ data class ReportData(
         (balanceNow.totalInterest + transactions.totalInterest) - balanceBefore.totalInterest
 }
 
+data class Product(
+    val name: String,
+    val certificate: String,
+    val issuedAt: String,
+    val matureAt: String)
+
 data class Period(
     val from: String,
     val to: String
