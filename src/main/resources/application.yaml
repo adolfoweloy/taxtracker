@@ -9,6 +9,10 @@ spring:
     password: taxtracker
   flyway:
     enabled: true
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
 
 tax:
   currencyBeacon:

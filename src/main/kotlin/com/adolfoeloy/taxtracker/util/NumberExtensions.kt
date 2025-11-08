@@ -28,3 +28,13 @@ fun BigDecimal.toCents(scale: Int = 2): Int {
         .movePointRight(scale)
         .toInt()
 }
+
+/**
+ * Converts a string representing a decimal number to BigDecimal.
+ * Example: "1,234.56" -> BigDecimal("1234.56")
+ */
+fun String.fromStringToBigDecimal(scale: Int = 2): BigDecimal {
+    return this.replace(",", "")
+        .toBigDecimal()
+        .setScale(scale, RoundingMode.HALF_EVEN)
+}

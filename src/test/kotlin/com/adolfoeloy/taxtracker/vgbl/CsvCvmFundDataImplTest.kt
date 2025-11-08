@@ -14,9 +14,7 @@ class CsvCvmFundDataImplTest {
         val file = File(this::class.java.getResource(resourcePath)?.file
             ?: throw IllegalStateException("Resource file not found"))
 
-        val cvmFundDataList = subject.loadFrom(file.inputStream())
-        val result = cvmFundDataList.getByCnpj("26.756.416/0001-28")
-        val firstEntry = result.first { it.date == "2025-08-01" }
+        val cvmFundData = subject.loadFrom("26.756.416/0001-28", file.inputStream())
 
         val expected = CvmFundData(
             fundType = "CLASSES - FIF",
@@ -31,7 +29,7 @@ class CsvCvmFundDataImplTest {
             numberOfShareholders = "1"
         )
 
-        assertThat(firstEntry)
+        assertThat(cvmFundData)
             .usingRecursiveAssertion()
             .isEqualTo(expected)
     }

@@ -11,10 +11,11 @@ interface CsvCvmFundData {
 
     /** Loads CVM fund data from a CSV file located at the given path.
      *
+     * @param cnpj The CNPJ of the fund to load data for.
      * @param file The file to load the CSV data from.
      * @return A DailyFundData object containing the loaded data.
      */
-    fun loadFrom(file: InputStream): DailyFundData
+    fun loadFrom(cnpj: String, file: InputStream): CvmFundData
 
 }
 
@@ -22,7 +23,7 @@ interface CsvCvmFundData {
 class CsvCvmFundDataImpl : CsvCvmFundData {
     private val csvMapper = CsvMapper().registerKotlinModule()
 
-    override fun loadFrom(file: InputStream): DailyFundData {
+    override fun loadFrom(cnpj: String, file: InputStream): CvmFundData {
         val schema = CsvSchema.emptySchema()
             .withHeader()
             .withColumnSeparator(';')
@@ -33,8 +34,12 @@ class CsvCvmFundDataImpl : CsvCvmFundData {
             .readValues<CvmFundData>(file)
             .readAll()
 
-        return DailyFundData.fromCvmData(cvmFundDataList)
+        return DailyFundData
+            .fromCvmData(cvmFundDataList)
+            .getByCnpj(cnpj)
+            .first()
     }
+
 }
 
 /**
