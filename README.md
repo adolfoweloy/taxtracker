@@ -17,7 +17,7 @@ Feel free to explore the codebase as a reference for Spring Boot and Kotlin deve
 
 ## Requirements
 
-- **Java 17+** (or the JDK version specified in `build.gradle.kts`)
+- **Java 21+** (or the JDK version specified in `build.gradle.kts`)
 - **Docker** and **Docker Compose** (for running PostgreSQL)
 - **Gradle** (wrapper included in the project)
 
