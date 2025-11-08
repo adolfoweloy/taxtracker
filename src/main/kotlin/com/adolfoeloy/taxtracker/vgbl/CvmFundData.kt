@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.dataformat.csv.CsvMapper
 import com.fasterxml.jackson.dataformat.csv.CsvSchema
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import java.io.File
+import org.springframework.stereotype.Component
 import java.io.InputStream
 
 interface CsvCvmFundData {
@@ -18,6 +18,7 @@ interface CsvCvmFundData {
 
 }
 
+@Component
 class CsvCvmFundDataImpl : CsvCvmFundData {
     private val csvMapper = CsvMapper().registerKotlinModule()
 
