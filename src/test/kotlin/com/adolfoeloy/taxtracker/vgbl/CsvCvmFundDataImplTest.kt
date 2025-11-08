@@ -14,7 +14,7 @@ class CsvCvmFundDataImplTest {
         val file = File(this::class.java.getResource(resourcePath)?.file
             ?: throw IllegalStateException("Resource file not found"))
 
-        val cvmFundDataList = subject.loadFrom(file)
+        val cvmFundDataList = subject.loadFrom(file.inputStream())
         val result = cvmFundDataList.getByCnpj("26.756.416/0001-28")
         val firstEntry = result.first { it.date == "2025-08-01" }
 

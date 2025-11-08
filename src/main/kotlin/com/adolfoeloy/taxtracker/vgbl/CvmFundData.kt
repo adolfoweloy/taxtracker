@@ -5,6 +5,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper
 import com.fasterxml.jackson.dataformat.csv.CsvSchema
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.io.File
+import java.io.InputStream
 
 interface CsvCvmFundData {
 
@@ -13,14 +14,14 @@ interface CsvCvmFundData {
      * @param file The file to load the CSV data from.
      * @return A DailyFundData object containing the loaded data.
      */
-    fun loadFrom(file: File): DailyFundData
+    fun loadFrom(file: InputStream): DailyFundData
 
 }
 
 class CsvCvmFundDataImpl : CsvCvmFundData {
     private val csvMapper = CsvMapper().registerKotlinModule()
 
-    override fun loadFrom(file: File): DailyFundData {
+    override fun loadFrom(file: InputStream): DailyFundData {
         val schema = CsvSchema.emptySchema()
             .withHeader()
             .withColumnSeparator(';')
