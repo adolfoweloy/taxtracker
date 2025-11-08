@@ -1,47 +1,77 @@
 package com.adolfoeloy.taxtracker.balance
 
-import com.opencsv.bean.CsvBindByName
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.dataformat.csv.CsvMapper
+import com.fasterxml.jackson.dataformat.csv.CsvSchema
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import org.springframework.stereotype.Component
+import java.io.InputStream
+
+interface CsvBalanceData {
+
+    fun loadFrom(file: InputStream): List<BalanceRequest>
+
+}
+
+@Component
+class CsvBalanceDataImpl : CsvBalanceData {
+    private val csvMapper = CsvMapper().registerKotlinModule()
+
+    override fun loadFrom(file: InputStream): List<BalanceRequest> {
+        val schema = CsvSchema.emptySchema()
+            .withHeader()
+            .withColumnSeparator(';')
+
+        val result: List<BalanceRequest> = csvMapper
+            .readerFor(BalanceRequest::class.java)
+            .with(schema)
+            .readValues<BalanceRequest>(file)
+            .readAll()
+
+        return result
+    }
+}
 
 /**
  * Represents the Balance table from CDB Report -> Client Statement: Account Activity
  */
 data class BalanceRequest(
-    @CsvBindByName(column = "Produto")
+    @JsonProperty("Produto")
     val product: String = "",
 
-    @CsvBindByName(column = "Certificado|Evento")
+    @JsonProperty("Certificado|Evento")
     val certificate: String = "",
 
-    @CsvBindByName(column = "Emissão")
+    @JsonProperty("Emissão")
     val issuedAt: String = "",
 
-    @CsvBindByName(column = "Vencimento")
+    @JsonProperty("Vencimento")
     val matureAt: String = "",
 
-    @CsvBindByName(column = "Taxa|%")
+    @JsonProperty("Taxa|%")
     val percentage: String = "",
 
-    @CsvBindByName(column = "Principal")
+    @JsonProperty("Principal")
     val principal: String = "",
 
-    @CsvBindByName(column = "Atualizado")
+    @JsonProperty("Atualizado")
     val balance: String = "",
 
-    @CsvBindByName(column = "Rendimento")
+    @JsonProperty("Rendimento")
     val interest: String = "",
 
-    @CsvBindByName(column = "IOF")
+    @JsonProperty("IOF")
     val iof: String = "",
 
-    @CsvBindByName(column = "IR")
+    @JsonProperty("IR")
     val brTax: String = "",
 
-    @CsvBindByName(column = "Líquido")
+    @JsonProperty("Líquido")
     val balanceNet: String = "",
 
-    @CsvBindByName(column = "Balance Date")
+    @JsonProperty("Balance Date")
     val balanceDate: String = "",
 
-    @CsvBindByName(column = "BRLAUD Rate")
+    @JsonProperty("BRLAUD Rate")
     val brToAuForex: String = ""
 )

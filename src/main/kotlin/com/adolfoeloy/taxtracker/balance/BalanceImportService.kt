@@ -4,18 +4,17 @@ import com.adolfoeloy.taxtracker.product.Certificate
 import com.adolfoeloy.taxtracker.product.Product
 import com.adolfoeloy.taxtracker.product.ProductRepository
 import com.adolfoeloy.taxtracker.product.Products
-import com.opencsv.bean.CsvToBeanBuilder
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
-import java.io.InputStreamReader
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Component
 class BalanceImportService(
     private val balanceRepository: BalanceRepository,
-    private val productRepository: ProductRepository
+    private val productRepository: ProductRepository,
+    private val csvBalanceData: CsvBalanceData
 ) {
 
     @Transactional
@@ -32,7 +31,8 @@ class BalanceImportService(
         }
 
         val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-        val result = readCsvWithOpenCsv(filePath)
+
+        val result = csvBalanceData.loadFrom(filePath.inputStream)
         var rowsProcessed = 0
 
         result.forEach { balanceRequest ->
@@ -72,14 +72,6 @@ class BalanceImportService(
             rowsProcessed++
         }
         return rowsProcessed
-    }
-
-    private fun readCsvWithOpenCsv(filePath: MultipartFile): List<BalanceRequest> {
-        return CsvToBeanBuilder<BalanceRequest>(InputStreamReader(filePath.inputStream))
-            .withType(BalanceRequest::class.java)
-            .withSeparator(';')
-            .build()
-            .parse()
     }
 
     private fun String.toCents(): Int {
