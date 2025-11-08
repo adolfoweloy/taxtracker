@@ -1,47 +1,77 @@
 package com.adolfoeloy.taxtracker.transaction
 
-import com.opencsv.bean.CsvBindByName
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.dataformat.csv.CsvMapper
+import com.fasterxml.jackson.dataformat.csv.CsvSchema
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import org.springframework.stereotype.Component
+import java.io.InputStream
+
+interface CsvTransactionData {
+
+    fun loadFrom(file: InputStream): List<TransactionRequest>
+
+}
+
+@Component
+class CsvTransactionDataImpl : CsvTransactionData {
+    private val csvMapper = CsvMapper().registerKotlinModule()
+
+    override fun loadFrom(file: InputStream): List<TransactionRequest> {
+        val schema = CsvSchema.emptySchema()
+            .withHeader()
+            .withColumnSeparator(';')
+
+        val result: List<TransactionRequest> = csvMapper
+            .readerFor(TransactionRequest::class.java)
+            .with(schema)
+            .readValues<TransactionRequest>(file)
+            .readAll()
+
+        return result
+    }
+}
 
 data class TransactionRequest(
-    @CsvBindByName(column = "Produto")
+    @JsonProperty("Produto")
     val product: String = "",
 
-    @CsvBindByName(column = "Certificado|Evento")
+    @JsonProperty("Certificado|Evento")
     val certificate: String = "",
 
-    @CsvBindByName(column = "Emissão")
+    @JsonProperty("Emissão")
     val issuedAt: String = "",
 
-    @CsvBindByName(column = "Vencimento")
+    @JsonProperty("Vencimento")
     val matureAt: String = "",
 
-    @CsvBindByName(column = "Pagamento")
+    @JsonProperty("Pagamento")
     val paymentAt: String = "",
 
-    @CsvBindByName(column = "Taxa|%")
+    @JsonProperty("Taxa|%")
     val percentage: String = "",
 
-    @CsvBindByName(column = "Principal")
+    @JsonProperty("Principal")
     val principal: String = "",
 
-    @CsvBindByName(column = "Resgate")
+    @JsonProperty("Resgate")
     val redemption: String = "",
 
-    @CsvBindByName(column = "Rendimento")
+    @JsonProperty("Rendimento")
     val interest: String = "",
 
-    @CsvBindByName(column = "IOF")
+    @JsonProperty("IOF")
     val iof: String = "",
 
-    @CsvBindByName(column = "IR")
+    @JsonProperty("IR")
     val brTax: String = "",
 
-    @CsvBindByName(column = "Crédito")
+    @JsonProperty("Crédito")
     val credit: String = "",
 
-    @CsvBindByName(column = "Descrição")
+    @JsonProperty("Descrição")
     val description: String = "",
 
-    @CsvBindByName(column = "BRLAUD Rate")
+    @JsonProperty("BRLAUD Rate")
     val brToAuForex: String = ""
 )

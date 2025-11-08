@@ -1,22 +1,19 @@
 package com.adolfoeloy.taxtracker.transaction
 
-import com.adolfoeloy.taxtracker.balance.BalanceRequest
 import com.adolfoeloy.taxtracker.product.Certificate
 import com.adolfoeloy.taxtracker.product.Product
 import com.adolfoeloy.taxtracker.product.ProductRepository
 import com.adolfoeloy.taxtracker.product.Products
-import com.opencsv.bean.CsvToBeanBuilder
 import org.springframework.stereotype.Component
-import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
-import java.io.InputStreamReader
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Component
 class TransactionImportService(
     private val productRepository: ProductRepository,
-    private val transactionRepository: TransactionRepository
+    private val transactionRepository: TransactionRepository,
+    private val csvTransactionData: CsvTransactionData
 ) {
 
     fun processCsvFile(filePath: MultipartFile): Int {
@@ -34,7 +31,7 @@ class TransactionImportService(
         }
 
         val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-        val result = readCsvWithOpenCsv(filePath)
+        val result = csvTransactionData.loadFrom(filePath.inputStream)
 
         result.forEach { transactionRequest ->
             val certificate = Certificate.createNormalizedCertificate(transactionRequest.certificate)
@@ -69,14 +66,6 @@ class TransactionImportService(
         }
 
         return rowsProcessed
-    }
-
-    private fun readCsvWithOpenCsv(filePath: MultipartFile): List<TransactionRequest> {
-        return CsvToBeanBuilder<TransactionRequest>(InputStreamReader(filePath.inputStream))
-            .withType(TransactionRequest::class.java)
-            .withSeparator(';')
-            .build()
-            .parse()
     }
 
     private fun String.toCents(): Int {
