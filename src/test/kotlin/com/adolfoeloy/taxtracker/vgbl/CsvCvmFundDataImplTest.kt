@@ -10,7 +10,7 @@ class CsvCvmFundDataImplTest {
 
     @Test
     fun `CSV file from CVM should load correct CvmFundData properties for Bradesco VGBL TRUXT Macro`() {
-        val resourcePath = "/inf_diario_fi_202508.csv"
+        val resourcePath = "/inf_diario_fi_202508_cvm.csv"
         val file = File(this::class.java.getResource(resourcePath)?.file
             ?: throw IllegalStateException("Resource file not found"))
 
