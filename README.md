@@ -39,6 +39,12 @@ Using the Gradle wrapper:
 ./gradlew bootRun
 ```
 
+Make sure that the following environment variables are set appropriately for currency conversion services:
+- `CURRENCYBEACON_API_KEY`
+- `CURRENCYBEACON_ENABLED`
+
+Without these variables, the reports won't generate the results in the desired currency.
+
 ### 3. Run Tests
 
 Execute unit tests:
