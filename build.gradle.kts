@@ -61,8 +61,6 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.17.0")
 
-    implementation("com.opencsv:opencsv:5.12.0")
-
     // Database dependencies
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
