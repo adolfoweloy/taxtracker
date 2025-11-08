@@ -1,65 +1,55 @@
 package com.adolfoeloy.taxtracker.vgbl
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.dataformat.csv.CsvMapper
-import com.fasterxml.jackson.dataformat.csv.CsvSchema
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.springframework.stereotype.Component
+import java.io.BufferedReader
 import java.io.InputStream
+import java.io.InputStreamReader
 
 interface CsvCvmFundData {
 
     /** Loads CVM fund data from a CSV file located at the given path.
      *
      * @param cnpj The CNPJ of the fund to load data for.
-     * @param file The file to load the CSV data from.
+     * @param inputStream The input stream to load the CSV data from.
      * @return A DailyFundData object containing the loaded data.
      */
-    fun loadFrom(cnpj: String, file: InputStream): CvmFundData
+    fun loadFrom(cnpj: String, inputStream: InputStream): CvmFundData?
 
 }
 
 @Component
 class CsvCvmFundDataImpl : CsvCvmFundData {
-    private val csvMapper = CsvMapper().registerKotlinModule()
 
-    override fun loadFrom(cnpj: String, file: InputStream): CvmFundData {
-        val schema = CsvSchema.emptySchema()
-            .withHeader()
-            .withColumnSeparator(';')
-
-        val cvmFundDataList: List<CvmFundData> = csvMapper
-            .readerFor(CvmFundData::class.java)
-            .with(schema)
-            .readValues<CvmFundData>(file)
-            .readAll()
-
-        return DailyFundData
-            .fromCvmData(cvmFundDataList)
-            .getByCnpj(cnpj)
-            .first()
-    }
-
-}
-
-/**
- * Represents daily fund data grouped by CNPJ.
- *
- * @property cnpjToDailyFundData A map where the key is the CNPJ and the value is a list of CvmFundData entries for that CNPJ.
- */
-class DailyFundData(
-    val cnpjToDailyFundData: Map<String, List<CvmFundData>>
-) {
-    fun getByCnpj(cnpj: String): List<CvmFundData> {
-        return cnpjToDailyFundData[cnpj] ?: emptyList()
-    }
-
-    companion object {
-        fun fromCvmData(cvmData: List<CvmFundData>): DailyFundData {
-            val groupedData = cvmData.groupBy { it.cnpj }
-            return DailyFundData(groupedData)
+    override fun loadFrom(cnpj: String, inputStream: InputStream): CvmFundData? {
+        val row = BufferedReader(InputStreamReader(inputStream)).useLines { lines ->
+            lines.firstOrNull { line ->
+                line.split(';')
+                    .getOrNull(1)
+                    ?.equals(cnpj)
+                    ?: false
+            }
         }
+
+        return row?.let {
+            row.split(";").let { columns ->
+                CvmFundData(
+                    fundType = columns.getOrNull(0) ?: "",
+                    cnpj = columns.getOrNull(1) ?: "",
+                    subclassId = columns.getOrNull(2) ?: "",
+                    date = columns.getOrNull(3) ?: "",
+                    totalValue = columns.getOrNull(4) ?: "",
+                    quotaValue = columns.getOrNull(5) ?: "",
+                    netAssetValue = columns.getOrNull(6) ?: "",
+                    dailyCaptation = columns.getOrNull(7) ?: "",
+                    dailyRedemption = columns.getOrNull(8) ?: "",
+                    numberOfShareholders = columns.getOrNull(9) ?: ""
+                )
+            }
+        }
+
     }
+
+
 }
 
 /**
@@ -77,33 +67,14 @@ class DailyFundData(
  * @property numberOfShareholders The number of shareholders (NR_COTST).
  */
 data class CvmFundData(
-    @JsonProperty("TP_FUNDO_CLASSE")
     val fundType: String = "",
-
-    @JsonProperty("CNPJ_FUNDO_CLASSE")
     val cnpj: String = "",
-
-    @JsonProperty("ID_SUBCLASSE")
     val subclassId: String = "",
-
-    @JsonProperty("DT_COMPTC")
     val date: String = "",
-
-    @JsonProperty("VL_TOTAL")
     val totalValue: String = "",
-
-    @JsonProperty("VL_QUOTA")
     val quotaValue: String = "",
-
-    @JsonProperty("VL_PATRIM_LIQ")
     val netAssetValue: String = "",
-
-    @JsonProperty("CAPTC_DIA")
     val dailyCaptation: String = "",
-
-    @JsonProperty("RESG_DIA")
     val dailyRedemption: String = "",
-
-    @JsonProperty("NR_COTST")
     val numberOfShareholders: String = ""
 )

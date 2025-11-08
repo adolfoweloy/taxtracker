@@ -15,6 +15,16 @@ class VGBLFundService(
     fun saveQuotaValue(
         cvmFundData: CvmFundData
     ): VGBLQuota {
+
+        val vgblQuota = vgblQuotaRepository.findById(VGBLQuotaId(
+            cnpj = cvmFundData.cnpj,
+            competenceDate = cvmFundData.date.fromYYYYMMDDToLocalDate()
+        ))
+
+        if (vgblQuota.isPresent) {
+            return vgblQuota.get()
+        }
+
         val quota = VGBLQuota().apply {
             id.cnpj = cvmFundData.cnpj
             id.competenceDate = cvmFundData.date.fromYYYYMMDDToLocalDate()
