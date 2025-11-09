@@ -17,12 +17,16 @@ class VGBLFundServiceTest {
     @Mock
     private lateinit var vgblQuotaRepositoryMock: VGBLQuotaRepository
 
+    @Mock // TODO: having to add another repository to this service is a smell that this service is doing too much
+    private lateinit var vgblFundRepository: VGBLFundRepository
+
     private lateinit var subject: VGBLFundService
 
     @BeforeEach
     fun setUp() {
         subject = VGBLFundService(
-            vgblQuotaRepository = vgblQuotaRepositoryMock
+            vgblQuotaRepository = vgblQuotaRepositoryMock,
+            vgblFundRepository = vgblFundRepository
         )
     }
 
