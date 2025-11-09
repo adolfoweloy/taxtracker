@@ -44,25 +44,39 @@ class VGBLFundController(
 
     @PostMapping("/import")
     fun importCvmFundData(
-        @RequestParam("cnpj") cnpj: String,
+        @RequestParam("cnpjs") cnpjs: String,
         @RequestParam("file") file: MultipartFile
-    ): ResponseEntity<VGBLImportResponse> {
-        val cvmFundData = csvCvmFundData.loadFrom(cnpj, file.inputStream)
+    ): ResponseEntity<VGBLImportResult> {
 
-        if (cvmFundData == null) {
-            return ResponseEntity.notFound().build<VGBLImportResponse>()
+        val cnpjsList = cnpjs.split(",").map { it.trim() }
+        val result = VGBLImportResult()
+
+        for (cnpj in cnpjsList) {
+            val cvmFundData = csvCvmFundData.loadFrom(cnpj, file.inputStream)
+
+            if (cvmFundData == null) {
+                result.errors.add(VGBLErrorResult(
+                    error = "CVM fund data not found for CNPJ: $cnpj",
+                    cnpj = cnpj
+                ))
+            } else {
+                val vgblQuota = vgblFundService.saveQuotaValue(cvmFundData)
+                result.processed.add(
+                    VGBLImportResultItem(
+                        cnpj = vgblQuota.id.cnpj,
+                        fundType = vgblQuota.fundClass,
+                        quotaValue = vgblQuota.quotaValue.toString(),
+                        competenceDate = vgblQuota.id.competenceDate.toString()
+                    )
+                )
+            }
         }
 
-        val vgblQuota = vgblFundService.saveQuotaValue(cvmFundData)
-
-        val response = VGBLImportResponse(
-            cnpj = vgblQuota.id.cnpj,
-            fundType = vgblQuota.fundClass,
-            quotaValue = vgblQuota.quotaValue.toString(),
-            competenceDate = vgblQuota.id.competenceDate.toString()
-        )
-
-        return ResponseEntity.ok(response)
+        return when {
+            result.errors.isEmpty() -> ResponseEntity.ok(result) // 200 - all succeeded
+            result.processed.isEmpty() -> ResponseEntity.badRequest().body(result) // 400 - all failed
+            else -> ResponseEntity.status(207).body(result) // 207 - partial success
+        }
     }
 
     data class VGBLFundIncomesRequest(
@@ -73,7 +87,17 @@ class VGBLFundController(
         val currency: String?
     )
 
-    data class VGBLImportResponse(
+    data class VGBLImportResult(
+        val processed: MutableList<VGBLImportResultItem> = mutableListOf<VGBLImportResultItem>(),
+        val errors: MutableList<VGBLErrorResult> = mutableListOf<VGBLErrorResult>()
+    )
+
+    data class VGBLErrorResult(
+        val error: String,
+        val cnpj: String
+    )
+
+    data class VGBLImportResultItem(
         val cnpj: String,
         val fundType: String,
         val quotaValue: String,

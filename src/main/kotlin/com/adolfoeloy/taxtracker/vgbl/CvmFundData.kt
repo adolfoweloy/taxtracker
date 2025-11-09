@@ -22,7 +22,7 @@ class CsvCvmFundDataImpl : CsvCvmFundData {
 
     override fun loadFrom(cnpj: String, inputStream: InputStream): CvmFundData? {
         val row = BufferedReader(InputStreamReader(inputStream)).useLines { lines ->
-            lines.lastOrNull() { line ->
+            lines.lastOrNull() { line -> // TODO: trusting that the lines are ordered by date, this should be improved.
                 line.split(';')
                     .getOrNull(1)
                     ?.equals(cnpj)
