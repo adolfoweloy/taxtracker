@@ -17,8 +17,8 @@ interface VGBLFundRepository : JpaRepository<VGBLFund, String> {
                 FROM vgbl_quota vq
                 INNER JOIN fund f ON f.cnpj = vq.cnpj
                 WHERE f.cnpj = :cnpj
-                AND EXTRACT(YEAR FROM vq.competence_date) = :year
-                AND EXTRACT(MONTH FROM vq.competence_date) BETWEEN :startMonth AND :endMonth
+                AND competence_date >= :startDate 
+                AND competence_date < :endDate
             ),
             last_day_per_month AS (
                 SELECT 
@@ -46,9 +46,8 @@ interface VGBLFundRepository : JpaRepository<VGBLFund, String> {
     )
     fun getIncomeDifferenceByCompetenceDate(
         cnpj: String,
-        year: Int,
-        startMonth: Int,
-        endMonth: Int
+        startDate: LocalDate,
+        endDate: LocalDate
     ): List<IncomeDifference>
 
 }

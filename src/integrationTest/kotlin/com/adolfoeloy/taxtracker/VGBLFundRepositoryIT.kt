@@ -3,6 +3,7 @@ package com.adolfoeloy.taxtracker
 import com.adolfoeloy.taxtracker.fixture.FundMother
 import com.adolfoeloy.taxtracker.fixture.VGBLQuotaMother
 import com.adolfoeloy.taxtracker.util.fromYYYYMMDDToLocalDate
+import com.adolfoeloy.taxtracker.util.fromYearMonthString
 import com.adolfoeloy.taxtracker.vgbl.VGBLFund
 import com.adolfoeloy.taxtracker.vgbl.VGBLFundRepository
 import com.adolfoeloy.taxtracker.vgbl.VGBLQuotaRepository
@@ -61,9 +62,8 @@ class VGBLFundRepositoryIT : AbstractDatabaseIntegrationTest() {
         // When: Querying incomes for August to October period
         val result = vgblFundRepository.getIncomeDifferenceByCompetenceDate(
             cnpj = fundCnpj,
-            year = 2024,
-            startMonth = 7,
-            endMonth = 10
+            startDate = "202407".fromYearMonthString(),
+            endDate = "202410".fromYearMonthString()
         )
 
         // Then: Should return 3 months with calculated income differences

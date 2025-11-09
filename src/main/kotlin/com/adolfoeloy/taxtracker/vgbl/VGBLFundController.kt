@@ -1,5 +1,6 @@
 package com.adolfoeloy.taxtracker.vgbl
 
+import com.adolfoeloy.taxtracker.util.fromYearMonthString
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -8,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 @RestController
 @RequestMapping("/vgbl")
@@ -17,7 +20,7 @@ class VGBLFundController(
 ) {
 
     @PostMapping
-    fun createFund(@RequestBody vgblFund: VGBLFundRequest): ResponseEntity<VGBLFundResponse> {
+    fun save(@RequestBody vgblFund: VGBLFundRequest): ResponseEntity<VGBLFundResponse> {
         val response = vgblFundService.saveFund(vgblFund)
 
         return ResponseEntity.ok(VGBLFundResponse(
@@ -29,18 +32,47 @@ class VGBLFundController(
     }
 
     @GetMapping
-    fun readFundsIncome(@RequestBody vgblFundRequest: VGBLFundIncomesRequest): List<VGBLMonthIncome> {
+    fun search(@RequestBody vgblFundRequest: VGBLFundIncomesRequest): List<VGBLMonthIncome> {
 
         val incomeDataForPeriod = vgblFundService.getIncomeDataForPeriod(
             cnpj = vgblFundRequest.cnpj,
-            year = vgblFundRequest.year,
-            startMonth = vgblFundRequest.startMonth,
-            endMonth = vgblFundRequest.endMonth,
+            start = vgblFundRequest.startYearMonth.fromYearMonthString(),
+            end = vgblFundRequest.endYearMonth.fromYearMonthString(),
             currency = vgblFundRequest.currency ?: "BRL"
         )
 
         return incomeDataForPeriod
     }
+
+    @GetMapping("/summary")
+    fun searchSummary(@RequestBody vgblFundRequest: VGBLFundIncomesRequest): VGBLIncomeSummary {
+
+        val incomeDataForPeriod = vgblFundService.getIncomeDataForPeriod(
+            cnpj = vgblFundRequest.cnpj,
+            start = vgblFundRequest.startYearMonth.fromYearMonthString(),
+            end = vgblFundRequest.endYearMonth.fromYearMonthString(),
+            currency = vgblFundRequest.currency ?: "BRL"
+        )
+
+        val totalIncome = incomeDataForPeriod
+            .map { it.incomeDifference }
+            .fold(BigDecimal.ZERO) { acc, value -> acc.add(value ?: BigDecimal.ZERO) }
+            .setScale(2, RoundingMode.HALF_EVEN)
+
+        return VGBLIncomeSummary(
+            cnpj = vgblFundRequest.cnpj,
+            yearMonthStart = vgblFundRequest.startYearMonth,
+            yearMonthEnd = vgblFundRequest.endYearMonth,
+            totalIncome = totalIncome.toString()
+        )
+    }
+
+    data class VGBLIncomeSummary(
+        val cnpj: String,
+        val yearMonthStart: String,
+        val yearMonthEnd: String,
+        val totalIncome: String
+    )
 
     @PostMapping("/import")
     fun importCvmFundData(
@@ -81,9 +113,8 @@ class VGBLFundController(
 
     data class VGBLFundIncomesRequest(
         val cnpj: String,
-        val year: Int,
-        val startMonth: Int,
-        val endMonth: Int,
+        val startYearMonth: String,
+        val endYearMonth: String,
         val currency: String?
     )
 

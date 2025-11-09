@@ -3,9 +3,11 @@ package com.adolfoeloy.taxtracker.vgbl
 import com.adolfoeloy.taxtracker.forex.ForexService
 import com.adolfoeloy.taxtracker.util.fromStringToBigDecimal
 import com.adolfoeloy.taxtracker.util.fromYYYYMMDDToLocalDate
+import com.adolfoeloy.taxtracker.util.sameYearAndMonth
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.time.LocalDate
 
 // the whole plan is, to import all data from CVM
 // with data imported, create a service that will fetch the quotas and calculate the interest and taxes
@@ -57,17 +59,15 @@ class VGBLFundService(
 
     fun getIncomeDataForPeriod(
         cnpj: String,
-        year: Int,
-        startMonth: Int,
-        endMonth: Int,
+        start: LocalDate,
+        end: LocalDate,
         currency: String
     ): List<VGBLMonthIncome> {
         return vgblFundRepository.getIncomeDifferenceByCompetenceDate(
             cnpj = cnpj,
-            year = year,
-            startMonth = baseMonth(startMonth),
-            endMonth = endMonth
-        ).filter { it.competenceDate.monthValue != baseMonth(startMonth) }
+            startDate = previousMonth(start),
+            endDate = end
+        ).filter { !it.competenceDate.sameYearAndMonth(previousMonth(start)) }
         .map {
             val income = if (currency != "BRL") forexService.applyForexRateFor(it.income, it.competenceDate, currency) else it.income
             val previousIncome = if (currency != "BRL") forexService.applyForexRateFor(it.previousIncome, it.competenceDate, currency) else it.previousIncome
@@ -85,7 +85,8 @@ class VGBLFundService(
         }
     }
 
-     fun baseMonth(startMonth: Int): Int = if (startMonth == 1) 12 else startMonth - 1
+    fun previousMonth(date: LocalDate): LocalDate =
+        date.minusMonths(1).withDayOfMonth(1)
 }
 
 data class VGBLFundRequest(

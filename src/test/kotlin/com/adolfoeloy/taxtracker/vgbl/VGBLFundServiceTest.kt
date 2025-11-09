@@ -1,7 +1,9 @@
 package com.adolfoeloy.taxtracker.vgbl
 
+import com.adolfoeloy.taxtracker.forex.ForexService
 import com.adolfoeloy.taxtracker.util.fromStringToBigDecimal
 import com.adolfoeloy.taxtracker.util.fromYYYYMMDDToLocalDate
+import com.adolfoeloy.taxtracker.util.fromYearMonthString
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -18,7 +20,10 @@ class VGBLFundServiceTest {
     private lateinit var vgblQuotaRepositoryMock: VGBLQuotaRepository
 
     @Mock // TODO: having to add another repository to this service is a smell that this service is doing too much
-    private lateinit var vgblFundRepository: VGBLFundRepository
+    private lateinit var vgblFundRepositoryMock: VGBLFundRepository
+
+    @Mock
+    private lateinit var forexServiceMock: ForexService
 
     private lateinit var subject: VGBLFundService
 
@@ -26,7 +31,8 @@ class VGBLFundServiceTest {
     fun setUp() {
         subject = VGBLFundService(
             vgblQuotaRepository = vgblQuotaRepositoryMock,
-            vgblFundRepository = vgblFundRepository
+            vgblFundRepository = vgblFundRepositoryMock,
+            forexService = forexServiceMock
         )
     }
 
@@ -64,7 +70,7 @@ class VGBLFundServiceTest {
 
     @Test
     fun `base month should return December when end month is January`() {
-        val result = subject.baseMonth(1)
-        assertThat(result).isEqualTo(12)
+        val result = subject.previousMonth("202401".fromYearMonthString())
+        assertThat(result).isEqualTo("202312".fromYearMonthString())
     }
 }

@@ -28,3 +28,7 @@ fun String.fromYYYYMMDDToLocalDate(): LocalDate {
 fun LocalDate.lastDay(): LocalDate {
     return this.withDayOfMonth(this.lengthOfMonth())
 }
+
+fun LocalDate.sameYearAndMonth(other: LocalDate): Boolean {
+    return this.year == other.year && this.monthValue == other.monthValue
+}
