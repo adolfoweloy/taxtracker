@@ -4,6 +4,7 @@ import com.adolfoeloy.taxtracker.forex.provider.ForexProvider
 import com.adolfoeloy.taxtracker.util.fromCentsToBigDecimal
 import com.adolfoeloy.taxtracker.util.toCents
 import org.springframework.stereotype.Component
+import java.math.BigDecimal
 import java.time.LocalDate
 
 @Component
@@ -30,5 +31,18 @@ class DefaultForexService(
             .multiply(bigDecimalForexRate)
             .toCents(scale = 2)
     }
+
+    override fun applyForexRateFor(
+        amount: BigDecimal,
+        date: LocalDate,
+        currencyTicker: String
+    ): BigDecimal {
+        val forexRate = forexProvider.getRate(currencyTicker, date)
+        val bigDecimalForexRate = forexRate.rate.fromCentsToBigDecimal(forexRate.scale)
+
+        return amount
+            .multiply(bigDecimalForexRate)
+    }
+
 
 }

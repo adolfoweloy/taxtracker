@@ -38,8 +38,7 @@ interface VGBLFundRepository : JpaRepository<VGBLFund, String> {
             SELECT 
                 competence_date,
                 income,
-                LAG(income) OVER (ORDER BY competence_date) AS previous_income,
-                income - LAG(income) OVER (ORDER BY competence_date) AS income_difference
+                LAG(income) OVER (ORDER BY competence_date) AS previous_income
             FROM monthly_income
             ORDER BY competence_date
         """,
@@ -57,6 +56,5 @@ interface VGBLFundRepository : JpaRepository<VGBLFund, String> {
 interface IncomeDifference {
     val competenceDate: LocalDate
     val income: BigDecimal
-    val previousIncome: BigDecimal?
-    val incomeDifference: BigDecimal?
+    val previousIncome: BigDecimal
 }

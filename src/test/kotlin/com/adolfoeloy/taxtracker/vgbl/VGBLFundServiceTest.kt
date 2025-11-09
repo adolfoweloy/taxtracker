@@ -61,4 +61,10 @@ class VGBLFundServiceTest {
             .usingRecursiveComparison()
             .isEqualTo(expected)
     }
+
+    @Test
+    fun `base month should return December when end month is January`() {
+        val result = subject.baseMonth(1)
+        assertThat(result).isEqualTo(12)
+    }
 }

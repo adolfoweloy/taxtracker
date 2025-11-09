@@ -77,17 +77,17 @@ class VGBLFundRepositoryIT : AbstractDatabaseIntegrationTest() {
         val august = result[1] // this shows the income from July (calculated by subtracting 1st day of August - 1st day of July)
         assertThat(august.competenceDate).isEqualTo("2024-08-29".fromYYYYMMDDToLocalDate())
         assertThat(august.income).isEqualTo(fundQuotas * "1.300695300000".toBigDecimal())
-        assertThat(august.incomeDifference).isEqualTo(august.income - july.income)
+        assertThat(august.income.minus(august.previousIncome!!)).isEqualTo(august.income - july.income)
 
         val september = result[2] // this shows the income from August (calculated by subtracting 1st day of September - 1st day of August)
         assertThat(september.competenceDate).isEqualTo("2024-09-30".fromYYYYMMDDToLocalDate())
         assertThat(september.income).isEqualTo(fundQuotas * "1.308531400000".toBigDecimal())
-        assertThat(september.incomeDifference).isEqualTo(september.income - august.income)
+        assertThat(september.income.minus(september.previousIncome!!)).isEqualTo(september.income - august.income)
 
         val october = result[3] // this shows the income from September (calculated by subtracting 1st day of October - 1st day of September)
         assertThat(october.competenceDate).isEqualTo("2024-10-31".fromYYYYMMDDToLocalDate())
         assertThat(october.income).isEqualTo(fundQuotas * "1.333202300000".toBigDecimal())
-        assertThat(october.incomeDifference).isEqualTo(october.income - september.income)
+        assertThat(october.income.minus(october.previousIncome!!)).isEqualTo(october.income - september.income)
     }
 
     private fun createQuota(
