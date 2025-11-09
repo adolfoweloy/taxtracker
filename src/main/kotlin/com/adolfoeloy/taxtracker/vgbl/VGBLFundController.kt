@@ -2,6 +2,7 @@ package com.adolfoeloy.taxtracker.vgbl
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -13,6 +14,18 @@ class VGBLFundController(
     val csvCvmFundData: CsvCvmFundData,
     val vgblFundService: VGBLFundService
 ) {
+
+    @PostMapping
+    fun createFund(@RequestBody vgblFund: VGBLFundRequest): ResponseEntity<VGBLFundResponse> {
+        val response = vgblFundService.saveFund(vgblFund)
+
+        return ResponseEntity.ok(VGBLFundResponse(
+            cnpj = response.cnpj,
+            planName = response.planName,
+            fundName = response.fundName,
+            quotas = response.quotas.toString()
+        ))
+    }
 
     @PostMapping("/import")
     fun importCvmFundData(
@@ -42,5 +55,12 @@ class VGBLFundController(
         val fundType: String,
         val quotaValue: String,
         val competenceDate: String
+    )
+
+    data class VGBLFundResponse(
+        val cnpj: String,
+        val planName: String,
+        val fundName: String,
+        val quotas: String
     )
 }

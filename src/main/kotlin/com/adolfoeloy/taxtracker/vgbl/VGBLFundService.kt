@@ -9,7 +9,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class VGBLFundService(
-    val vgblQuotaRepository: VGBLQuotaRepository
+    val vgblQuotaRepository: VGBLQuotaRepository,
+    val vgblFundRepository: VGBLFundRepository
 ) {
 
     fun saveQuotaValue(
@@ -37,4 +38,25 @@ class VGBLFundService(
         return quota
     }
 
+    fun saveFund(vgblFundService: VGBLFundRequest): VGBLFund {
+        val fund = VGBLFund().apply {
+            cnpj = vgblFundService.cnpj
+            planName = vgblFundService.planName
+            fundName = vgblFundService.fundName
+            quotas = vgblFundService.quotas.fromStringToBigDecimal(scale = 12)
+        }
+
+        val savedFund = vgblFundRepository.save(fund)
+
+        return savedFund
+    }
+
 }
+
+data class VGBLFundRequest(
+    val cnpj: String,
+    val planName: String,
+    val fundName: String,
+    val quotas: String
+)
+
