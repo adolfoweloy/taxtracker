@@ -20,12 +20,12 @@ class CsvCvmFundDataImplTest {
             fundType = "CLASSES - FIF",
             cnpj = "26.756.416/0001-28",
             subclassId = "",
-            date = "2025-08-01",
-            totalValue = "42637166.56",
-            quotaValue = "1.279672500000",
-            netAssetValue = "42645077.45",
-            dailyCaptation = "601.80",
-            dailyRedemption = "0.00",
+            date = "2025-08-29",
+            totalValue = "42574256.30",
+            quotaValue = "1.300695300000",
+            netAssetValue = "42548186.57",
+            dailyCaptation = "406.74",
+            dailyRedemption = "136058.63",
             numberOfShareholders = "1"
         )
 
