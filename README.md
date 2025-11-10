@@ -21,6 +21,11 @@ Feel free to explore the codebase as a reference for Spring Boot and Kotlin deve
 - **Docker** and **Docker Compose** (for running PostgreSQL)
 - **Gradle** (wrapper included in the project)
 
+## Source used for VGBL
+
+- https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/
+- https://dados.cvm.gov.br/dataset/fi-doc-inf_diario
+
 ## How to Run the Project
 
 ### 1. Start the Database
