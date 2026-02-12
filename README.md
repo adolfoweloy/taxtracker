@@ -36,6 +36,14 @@ The project uses PostgreSQL via Docker Compose:
 docker-compose up -d
 ```
 
+To load the database from pg_dump, find the latest dump and run the following command considering that the docker container is named `tax-tracker-db`:
+
+```bash
+docker exec -i tax-tracker-db psql -U postgres -d tax_tracker < /path/to/your/dump.sql
+```
+
+**Latest dump**: `taxtracker_copy_20251109.sql`
+
 ### 2. Run the Application
 
 Using the Gradle wrapper:
