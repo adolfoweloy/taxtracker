@@ -10,7 +10,39 @@
 </head>
 <body>
 <section class="section" layout:fragment="page-content">
-    <h1 class="section-title">Report for FY[[${financialYear}]]</h1>
+    <h1 class="section-title">Report for FY[[${financiarenalYear}]]</h1>
+
+    <form method="POST" th:action="@{/report/installment}" th:if="${from != null}">
+        <div class="d-flex align-items-end gap-3 mb-4">
+            <div>
+                <label for="fy-input" class="form-label mb-1">Financial Year</label>
+                <input type="number" id="fy-input" name="financial_year" class="form-control" min="20" max="40"
+                       th:value="${financialYear}"/>
+            </div>
+            <div>
+                <label for="from-input" class="form-label mb-1">From</label>
+                <input type="text" id="from-input" name="from" class="form-control" readonly
+                       th:value="${#strings.substring(from,0,4) + '-' + #strings.substring(from,4,6)}"/>
+            </div>
+            <div>
+                <label for="to-input" class="form-label mb-1">To</label>
+                <input type="text" id="to-input" name="to" class="form-control" readonly
+                       th:value="${#strings.substring(to,0,4) + '-' + #strings.substring(to,4,6)}"/>
+            </div>
+            <div>
+                <label for="currency-input" class="form-label mb-1">Currency</label>
+                <select id="currency-input" name="currency" class="form-select">
+                    <option value="BRL" th:selected="${currency == 'BRL'}">BRL</option>
+                    <option value="AUD" th:selected="${currency == 'AUD'}">AUD</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label mb-1">&nbsp;</label>
+                <button type="submit" class="btn btn-primary d-block">Search</button>
+            </div>
+        </div>
+    </form>
+
     <table class="report-table">
         <thead>
         <tr>
@@ -36,6 +68,39 @@
             <td></td>
         </tfoot>
     </table>
+
+    <script th:if="${from != null}">
+        document.addEventListener('DOMContentLoaded', function () {
+            $('#from-input, #to-input').datepicker({
+                format: 'yyyy-mm',
+                minViewMode: 'months',
+                autoclose: true
+            });
+
+            $('#fy-input').on('change', function () {
+                var fy = parseInt(this.value, 10);
+                var startYear = 2000 + fy - 1;
+                var endYear = 2000 + fy;
+
+                var now = new Date();
+                var currentYM = now.getFullYear() * 100 + (now.getMonth() + 1);
+                var fyEndYM = endYear * 100 + 6;
+
+                var toYear, toMonth;
+                if (currentYM < fyEndYM) {
+                    toYear = now.getFullYear();
+                    toMonth = now.getMonth() + 1;
+                } else {
+                    toYear = endYear;
+                    toMonth = 6;
+                }
+
+                var pad = function (n) { return n < 10 ? '0' + n : '' + n; };
+                $('#from-input').datepicker('update', startYear + '-07');
+                $('#to-input').datepicker('update', toYear + '-' + pad(toMonth));
+            });
+        });
+    </script>
 </section>
 </body>
 </html>

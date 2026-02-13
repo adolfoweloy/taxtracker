@@ -51,6 +51,7 @@ dependencies {
     implementation("org.webjars:popper.js:2.11.7")
     implementation("org.webjars:jquery:3.7.1")
     implementation("org.webjars:font-awesome:6.7.2")
+    implementation("org.webjars:bootstrap-datepicker:1.10.0")
 
 
 	implementation("org.springframework.boot:spring-boot-starter-web")
