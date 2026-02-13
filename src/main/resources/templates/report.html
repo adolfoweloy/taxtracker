@@ -19,6 +19,27 @@
     </label>
     <label class="summary summary-right">Currency: [[${currencyTicker}]]</label>
 
+    <form id="report-form" class="mb-4 mt-4">
+        <div class="d-flex align-items-end gap-3">
+            <div>
+                <label for="month-input" class="form-label mb-1">Month</label>
+                <input type="text" id="month-input" class="form-control" readonly
+                       th:value="${year + '-' + (month < 10 ? '0' + month : '' + month)}"/>
+            </div>
+            <div>
+                <label for="currency-input" class="form-label mb-1">Currency</label>
+                <select id="currency-input" class="form-select">
+                    <option value="BRL" th:selected="${currencyTicker == 'BRL'}">BRL</option>
+                    <option value="AUD" th:selected="${currencyTicker == 'AUD'}">AUD</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label mb-1">&nbsp;</label>
+                <button type="submit" class="btn btn-primary d-block">Search</button>
+            </div>
+        </div>
+    </form>
+
     <h3 class="section-title">Balance at [[${balanceBefore.balanceAt}]]</h3>
     <table class="report-table">
         <thead>
@@ -138,6 +159,24 @@
         </tfoot>
     </table>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            $('#month-input').datepicker({
+                format: 'yyyy-mm',
+                minViewMode: 'months',
+                autoclose: true
+            });
+
+            document.getElementById('report-form').addEventListener('submit', function (e) {
+                e.preventDefault();
+                var parts = document.getElementById('month-input').value.split('-');
+                var year = parts[0];
+                var month = parts[1];
+                var currency = document.getElementById('currency-input').value;
+                window.location.href = '/report/' + month + '/' + year + '?currency=' + currency;
+            });
+        });
+    </script>
 </section>
 </body>
 </html>

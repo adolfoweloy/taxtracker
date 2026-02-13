@@ -36,6 +36,8 @@ class ReportController(
             model.addAttribute("transactions", reportData.transactions)
             model.addAttribute("totalGrossInterestEarned", reportData.totalGrossInterestEarned())
             model.addAttribute("currencyTicker", reportData.currencyTicker)
+            model.addAttribute("month", month)
+            model.addAttribute("year", year)
         }
 
         return "report"
