@@ -5,10 +5,60 @@
 >
 <head>
     <title layout:title-pattern="$CONTENT_TITLE">TaxTracker</title>
-    <link rel="stylesheet" th:href="@{/css/report.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/font-awesome/css/all.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/layout.css}"/>
 </head>
 <body>
-    <section layout:fragment="page-content">
-    </section>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <nav class="sidebar d-flex flex-column flex-shrink-0 p-3">
+            <div class="sidebar-brand mb-3 pb-2 border-bottom">
+                <i class="fa-solid fa-calculator me-2"></i>TaxTracker
+            </div>
+
+            <!-- Import section -->
+            <div class="sidebar-section mb-2">
+                <a class="sidebar-heading d-flex align-items-center justify-content-between"
+                   data-bs-toggle="collapse" href="#importMenu" role="button"
+                   aria-expanded="true" aria-controls="importMenu">
+                    <span><i class="fa-solid fa-file-import me-2"></i>Import</span>
+                    <i class="fa-solid fa-chevron-down sidebar-chevron"></i>
+                </a>
+                <div class="collapse show" id="importMenu">
+                    <ul class="list-unstyled ms-3 mt-1 mb-0">
+                        <li class="sidebar-item">VGBL</li>
+                        <li class="sidebar-item">Balance reports</li>
+                        <li class="sidebar-item">Transaction reports</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Reports section -->
+            <div class="sidebar-section mb-2">
+                <a class="sidebar-heading d-flex align-items-center justify-content-between"
+                   data-bs-toggle="collapse" href="#reportsMenu" role="button"
+                   aria-expanded="true" aria-controls="reportsMenu">
+                    <span><i class="fa-solid fa-chart-line me-2"></i>Reports</span>
+                    <i class="fa-solid fa-chevron-down sidebar-chevron"></i>
+                </a>
+                <div class="collapse show" id="reportsMenu">
+                    <ul class="list-unstyled ms-3 mt-1 mb-0">
+                        <li class="sidebar-item">CDB Monthly Income</li>
+                        <li class="sidebar-item">CDB FY Summary</li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main class="flex-grow-1 p-4">
+            <section layout:fragment="page-content">
+            </section>
+        </main>
+    </div>
+
+    <script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+    <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

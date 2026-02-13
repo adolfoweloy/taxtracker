@@ -44,14 +44,6 @@ label.summary-right {
     transition: background-color 0.2s;
 }
 
-.section-title {
-    color: #495057;
-    margin: 30px 0 15px 0;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #007bff;
-    font-weight: 600;
-}
-
 .section-divider {
     border: none;
     height: 2px;
