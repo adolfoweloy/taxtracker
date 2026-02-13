@@ -47,6 +47,15 @@
     background-color: #495057;
 }
 
+.sidebar-item a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.sidebar-item a:hover {
+    color: inherit;
+}
+
 /* Shared styles */
 .section-title {
     color: #495057;
