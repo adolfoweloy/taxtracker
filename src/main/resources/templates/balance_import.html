@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}"
+>
+<head>
+    <title>Import Balance Reports</title>
+</head>
+<body>
+<section class="section" layout:fragment="page-content">
+    <h1 class="section-title">Import Balance Reports</h1>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <form method="POST" th:action="@{/import/balance}" enctype="multipart/form-data" class="mb-4">
+        <div class="d-flex align-items-end gap-3">
+            <div>
+                <label for="file-input" class="form-label mb-1">CSV File</label>
+                <input type="file" id="file-input" name="file" class="form-control" accept=".csv" required/>
+            </div>
+            <div>
+                <label class="form-label mb-1">&nbsp;</label>
+                <button type="submit" class="btn btn-primary d-block">Import</button>
+            </div>
+        </div>
+    </form>
+</section>
+</body>
+</html>
