@@ -6,6 +6,9 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import jakarta.persistence.Transient
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.time.LocalDate
 
 @Entity
@@ -26,4 +29,8 @@ class ExchangeRate {
     var rate: Int = 0
 
     var scale: Int = 6
+
+    @Transient
+    fun getFormattedRate(): BigDecimal =
+        BigDecimal(rate).divide(BigDecimal.TEN.pow(scale), scale, RoundingMode.HALF_EVEN)
 }

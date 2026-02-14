@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}"
+>
+<head>
+    <title>Products</title>
+    <link rel="stylesheet" th:href="@{/css/report.css}"/>
+</head>
+<body>
+<section class="section" layout:fragment="page-content">
+    <h1 class="section-title">Products</h1>
+
+    <h3 class="section-title">Active</h3>
+    <table class="report-table">
+        <thead>
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Name</th>
+            <th scope="col">Certificate</th>
+            <th scope="col">Issued At</th>
+            <th scope="col">Mature At</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="product : ${activeProducts}">
+            <td th:text="${product.id}"></td>
+            <td th:text="${product.name}"></td>
+            <td th:text="${product.certificate.value}"></td>
+            <td th:text="${#temporals.format(product.issuedAt, 'dd/MM/yyyy')}"></td>
+            <td th:text="${#temporals.format(product.matureAt, 'dd/MM/yyyy')}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(activeProducts)}">
+            <td colspan="5">No active products.</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h3 class="section-title mt-4">Matured</h3>
+    <table class="report-table">
+        <thead>
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Name</th>
+            <th scope="col">Certificate</th>
+            <th scope="col">Issued At</th>
+            <th scope="col">Mature At</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="product : ${maturedProducts}">
+            <td th:text="${product.id}"></td>
+            <td th:text="${product.name}"></td>
+            <td th:text="${product.certificate.value}"></td>
+            <td th:text="${#temporals.format(product.issuedAt, 'dd/MM/yyyy')}"></td>
+            <td th:text="${#temporals.format(product.matureAt, 'dd/MM/yyyy')}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(maturedProducts)}">
+            <td colspan="5">No matured products.</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</body>
+</html>

@@ -36,20 +36,22 @@
             <th scope="col">Date</th>
             <th scope="col">Source</th>
             <th scope="col">Target</th>
-            <th scope="col">Rate</th>
+            <th scope="col">Rate (raw)</th>
             <th scope="col">Scale</th>
+            <th scope="col">Rate</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="rate : ${rates.content}">
-            <td th:text="${rate.rateAt}"></td>
+            <td th:text="${#temporals.format(rate.rateAt, 'dd/MM/yyyy')}"></td>
             <td th:text="${rate.source}"></td>
             <td th:text="${rate.target}"></td>
             <td th:text="${rate.rate}"></td>
             <td th:text="${rate.scale}"></td>
+            <td th:text="${rate.formattedRate}"></td>
         </tr>
         <tr th:if="${rates.totalElements == 0}">
-            <td colspan="5">No exchange rates found.</td>
+            <td colspan="6">No exchange rates found.</td>
         </tr>
         </tbody>
     </table>
