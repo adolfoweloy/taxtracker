@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}"
+>
+<head>
+    <title>Import VGBL Quotas</title>
+    <link rel="stylesheet" th:href="@{/css/report.css}"/>
+    <style>
+        .group-shaded td { background-color: #f8f9fa; }
+    </style>
+</head>
+<body>
+<section class="section" layout:fragment="page-content">
+    <h1 class="section-title">Import VGBL Quotas</h1>
+
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <form id="import-form" method="POST" th:action="@{/import/vgbl-quotas}" enctype="multipart/form-data" class="mb-4">
+        <input type="hidden" id="cnpjs-input" name="cnpjs"/>
+
+        <div class="mb-3">
+            <label class="form-label mb-1">Select Funds</label>
+            <div th:if="${#lists.isEmpty(funds)}" class="text-muted">
+                No funds registered. <a th:href="@{/settings/vgbl-funds}">Add funds first.</a>
+            </div>
+            <div class="form-check" th:each="fund : ${funds}">
+                <input class="form-check-input fund-checkbox" type="checkbox"
+                       th:value="${fund.cnpj}" th:id="'fund-' + ${fund.cnpj}"/>
+                <label class="form-check-label" th:for="'fund-' + ${fund.cnpj}"
+                       th:text="${fund.fundName + ' (' + fund.cnpj + ')'}"></label>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label mb-1">CVM CSV File</label>
+            <p class="text-muted small mb-1">Download the daily fund data CSV from one of the sources below:</p>
+            <ul class="list-unstyled small mb-2">
+                <li><i class="fa-solid fa-link me-1"></i><a href="https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/" target="_blank">dados.cvm.gov.br — Daily fund data files</a></li>
+                <li><i class="fa-solid fa-link me-1"></i><a href="https://dados.cvm.gov.br/dataset/fi-doc-inf_diario" target="_blank">dados.cvm.gov.br — Dataset documentation</a></li>
+            </ul>
+        </div>
+
+        <div class="d-flex align-items-end gap-3">
+            <div>
+                <input type="file" id="file-input" name="file" class="form-control" accept=".csv" required/>
+            </div>
+            <div>
+                <label class="form-label mb-1">&nbsp;</label>
+                <button type="submit" class="btn btn-primary d-block">Import</button>
+            </div>
+        </div>
+    </form>
+
+    <hr class="my-4"/>
+
+    <h3 class="section-title">Last Import Result</h3>
+    <div th:if="${imported != null && !imported.isEmpty()}">
+        <table class="report-table">
+            <thead>
+            <tr>
+                <th scope="col">Fund Name</th>
+                <th scope="col">CNPJ</th>
+                <th scope="col">Competence Date</th>
+                <th scope="col">Quota Value (BRL)</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="q : ${imported}">
+                <td th:text="${q.fundName}"></td>
+                <td th:text="${q.cnpj}"></td>
+                <td th:text="${q.competenceDate}"></td>
+                <td th:text="${q.quotaValue}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <p th:if="${imported == null || imported.isEmpty()}" class="text-muted">No quotas imported yet. Use the form above to import CVM data.</p>
+
+    <hr class="my-4"/>
+
+    <h3 class="section-title">Existing Quotas</h3>
+    <div th:if="${!#lists.isEmpty(quotaGroups)}">
+        <table class="report-table">
+            <thead>
+            <tr>
+                <th scope="col">Fund Name</th>
+                <th scope="col">CNPJ</th>
+                <th scope="col">Competence Date</th>
+                <th scope="col">Quota Value (BRL)</th>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:each="group, groupStat : ${quotaGroups}">
+                <tr th:each="q : ${group.value}" th:classappend="${groupStat.index % 2 != 0 ? 'group-shaded' : ''}">
+                    <td th:text="${group.key}"></td>
+                    <td th:text="${q.cnpj}"></td>
+                    <td th:text="${#temporals.format(q.competenceDate, 'dd/MM/yyyy')}"></td>
+                    <td th:text="${q.quotaValue}"></td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+    <p th:if="${#lists.isEmpty(quotaGroups)}" class="text-muted">No quotas registered.</p>
+
+    <script>
+        document.getElementById('import-form').addEventListener('submit', function (e) {
+            var checkboxes = document.querySelectorAll('.fund-checkbox:checked');
+            if (checkboxes.length === 0) {
+                e.preventDefault();
+                alert('Please select at least one fund.');
+                return;
+            }
+            var cnpjs = Array.prototype.map.call(checkboxes, function (cb) { return cb.value; });
+            document.getElementById('cnpjs-input').value = cnpjs.join(',');
+        });
+    </script>
+</section>
+</body>
+</html>
