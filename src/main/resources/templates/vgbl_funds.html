@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}"
+>
+<head>
+    <title>VGBL Funds</title>
+    <link rel="stylesheet" th:href="@{/css/report.css}"/>
+</head>
+<body>
+<section class="section" layout:fragment="page-content">
+    <h1 class="section-title">VGBL Funds</h1>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <h3 class="section-title">Add Fund</h3>
+    <form method="POST" th:action="@{/settings/vgbl-funds}" class="mb-4">
+        <div class="d-flex align-items-end gap-3">
+            <div>
+                <label for="cnpj-input" class="form-label mb-1">CNPJ</label>
+                <input type="text" id="cnpj-input" name="cnpj" class="form-control" required/>
+            </div>
+            <div>
+                <label for="plan-name-input" class="form-label mb-1">Plan Name</label>
+                <input type="text" id="plan-name-input" name="planName" class="form-control" required/>
+            </div>
+            <div>
+                <label for="fund-name-input" class="form-label mb-1">Fund Name</label>
+                <input type="text" id="fund-name-input" name="fundName" class="form-control" required/>
+            </div>
+            <div>
+                <label for="quotas-input" class="form-label mb-1">Quotas</label>
+                <input type="text" id="quotas-input" name="quotas" class="form-control" required/>
+            </div>
+            <div>
+                <label class="form-label mb-1">&nbsp;</label>
+                <button type="submit" class="btn btn-primary d-block">Add</button>
+            </div>
+        </div>
+    </form>
+
+    <h3 class="section-title">Registered Funds</h3>
+    <table class="report-table">
+        <thead>
+        <tr>
+            <th scope="col">CNPJ</th>
+            <th scope="col">Plan Name</th>
+            <th scope="col">Fund Name</th>
+            <th scope="col">Quotas</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="fund : ${funds}">
+            <td th:text="${fund.cnpj}"></td>
+            <td th:text="${fund.planName}"></td>
+            <td th:text="${fund.fundName}"></td>
+            <td th:text="${fund.quotas}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(funds)}">
+            <td colspan="4">No funds registered yet.</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</body>
+</html>

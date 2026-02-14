@@ -50,6 +50,20 @@
                     </ul>
                 </div>
             </div>
+            <!-- Settings section -->
+            <div class="sidebar-section mb-2">
+                <a class="sidebar-heading d-flex align-items-center justify-content-between"
+                   data-bs-toggle="collapse" href="#settingsMenu" role="button"
+                   aria-expanded="true" aria-controls="settingsMenu">
+                    <span><i class="fa-solid fa-gear me-2"></i>Settings</span>
+                    <i class="fa-solid fa-chevron-down sidebar-chevron"></i>
+                </a>
+                <div class="collapse show" id="settingsMenu">
+                    <ul class="list-unstyled ms-3 mt-1 mb-0">
+                        <li class="sidebar-item"><a th:href="@{/settings/vgbl-funds}">VGBL Funds</a></li>
+                    </ul>
+                </div>
+            </div>
         </nav>
 
         <!-- Main content -->
