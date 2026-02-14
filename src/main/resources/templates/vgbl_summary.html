@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}"
+>
+<head>
+    <title>VGBL Summary</title>
+    <link rel="stylesheet" th:href="@{/css/report.css}"/>
+</head>
+<body>
+<section class="section" layout:fragment="page-content">
+    <h1 class="section-title">VGBL Summary</h1>
+
+    <form id="summary-form" method="POST" th:action="@{/report/vgbl-summary}" class="mb-4">
+        <input type="hidden" id="cnpjs-input" name="cnpjs"/>
+
+        <div class="mb-3">
+            <label class="form-label mb-1">Select Funds</label>
+            <div th:if="${#lists.isEmpty(funds)}" class="text-muted">
+                No funds registered. <a th:href="@{/settings/vgbl-funds}">Add funds first.</a>
+            </div>
+            <div class="form-check" th:each="fund : ${funds}">
+                <input class="form-check-input fund-checkbox" type="checkbox"
+                       th:value="${fund.cnpj}" th:id="'fund-' + ${fund.cnpj}"
+                       th:checked="${selectedCnpjs != null && selectedCnpjs.contains(fund.cnpj)}"/>
+                <label class="form-check-label" th:for="'fund-' + ${fund.cnpj}"
+                       th:text="${fund.fundName + ' (' + fund.cnpj + ')'}"></label>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-end gap-3">
+            <div>
+                <label for="from-input" class="form-label mb-1">From</label>
+                <input type="text" id="from-input" name="from" class="form-control" readonly
+                       th:value="${from}" required/>
+            </div>
+            <div>
+                <label for="to-input" class="form-label mb-1">To (last month +1)</label>
+                <input type="text" id="to-input" name="to" class="form-control" readonly
+                       th:value="${to}" required/>
+            </div>
+            <div>
+                <label for="currency-input" class="form-label mb-1">Currency</label>
+                <select id="currency-input" name="currency" class="form-select">
+                    <option value="BRL" th:selected="${currency == 'BRL' || currency == null}">BRL</option>
+                    <option value="AUD" th:selected="${currency == 'AUD'}">AUD</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label mb-1">&nbsp;</label>
+                <button type="submit" class="btn btn-primary d-block">Search</button>
+            </div>
+        </div>
+    </form>
+
+    <div th:if="${summaries != null}">
+        <table class="report-table">
+            <thead>
+            <tr>
+                <th scope="col">Fund Name</th>
+                <th scope="col">CNPJ</th>
+                <th scope="col">Total Income ([[${currency}]])</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="s : ${summaries}">
+                <td th:text="${s.fundName}"></td>
+                <td th:text="${s.cnpj}"></td>
+                <td th:text="${s.totalIncome}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(summaries)}">
+                <td colspan="3">No data found for the selected period.</td>
+            </tr>
+            </tbody>
+            <tfoot th:if="${!#lists.isEmpty(summaries)}">
+            <tr>
+                <td colspan="2"><strong>Total</strong></td>
+                <td><strong th:text="${grandTotal}"></strong></td>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            $('#from-input, #to-input').datepicker({
+                format: 'yyyy-mm',
+                minViewMode: 'months',
+                autoclose: true
+            });
+
+            document.getElementById('summary-form').addEventListener('submit', function (e) {
+                var checkboxes = document.querySelectorAll('.fund-checkbox:checked');
+                if (checkboxes.length === 0) {
+                    e.preventDefault();
+                    alert('Please select at least one fund.');
+                    return;
+                }
+                var cnpjs = Array.prototype.map.call(checkboxes, function (cb) { return cb.value; });
+                document.getElementById('cnpjs-input').value = cnpjs.join(',');
+            });
+        });
+    </script>
+</section>
+</body>
+</html>
