@@ -4,8 +4,8 @@ Project created for extracting reports for tax purposes.
 
 ## Folder Structure
 
-- `/src/main/java`: Contains the source code with the main application logic.
-- `/src/test/java`: Contains the test cases for the application.
+- `/src/main/kotlin`: Contains the source code with the main application logic.
+- `/src/test/kotlin`: Contains the test cases for the application.
 - `/src/main/resources`: Contains configuration files and static resources.
 
 ## Unit testing and Integration testing
