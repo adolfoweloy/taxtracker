@@ -57,3 +57,8 @@ options:
   -h, --help  show this help message and exit
   --dry-run   Run without making external API calls
 ```
+
+### How I run this script
+
+- Save the resources in ~/Documents/tax/tmp
+- Reference that directory as the argument for `foreign_income_br_cdb.py`

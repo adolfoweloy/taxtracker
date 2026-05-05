@@ -72,7 +72,21 @@ Execute integration tests:
 ./gradlew integrationTest
 ```
 
-### 4. Access the Application
+### 4. Database backup
+
+For data only:
+
+```bash
+docker exec taxtracker_postgres pg_dump -U taxtracker --data-only taxtracker > taxtracker_dump_$(date +%Y%m%d).sql
+```
+
+For full dump (DDL)
+
+```bash
+docker exec taxtracker_postgres pg_dump -U taxtracker taxtracker > taxtracker_full_dump_$(date +%Y%m%d).sql
+```
+
+### 5. Access the Application
 
 Once running, the application should be accessible at `http://localhost:8080` (or the port configured in `application.yaml`).
 
