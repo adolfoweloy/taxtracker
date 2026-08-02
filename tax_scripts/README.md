@@ -15,6 +15,12 @@ Manually copying the data from PDFs to a spreadsheet while preparing tax report 
 
 ## Running
 
+The script can be run in two modes:
+- balance: import just the balances used to compute the monthly interest
+- redemptions: import the transaction in a month
+
+Another option available is to run the script in dry mode to avoid fetching the exchange rate from currencybeacon API.
+
 ### Requirements
 
 - Python 3 installed on your machine.
@@ -62,3 +68,14 @@ options:
 
 - Save the resources in ~/Documents/tax/tmp
 - Reference that directory as the argument for `foreign_income_br_cdb.py`
+
+To import just the balance, run the script using the `report` option as `balance` as follows:
+
+```
+python ./foreign_income_br_cdb.py \
+--output ~/Documents/tax/tmp/2026-q4-balance.csv \
+--report balance ~/Documents/tax/tmp
+```
+
+The option to import transactions is `--report redemptions`.
+
