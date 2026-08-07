@@ -42,7 +42,7 @@ To load the database from pg_dump, find the latest dump and run the following co
 docker exec -i tax-tracker-db psql -U postgres -d tax_tracker < /path/to/your/dump.sql
 ```
 
-**Latest dump**: `taxtracker_copy_20260506.sql`
+**Latest dump**: `taxtracker_full_dump_20260802.sql`
 
 ### 2. Run the Application
 
