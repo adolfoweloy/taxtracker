@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}"
+>
+<head>
+    <title>Fund Performance</title>
+    <link rel="stylesheet" th:href="@{/css/report.css}"/>
+    <style>
+        .perf-grid { width: 100%; border-collapse: collapse; margin: 20px 0; font-family: Arial, sans-serif; }
+        .perf-grid td { padding: 10px 12px; width: 33.33%; border: none; }
+        .perf-month { font-weight: bold; color: #495057; display: inline-block; min-width: 96px; }
+        .perf-value { font-variant-numeric: tabular-nums; }
+        .perf-positive { color: #198754; }
+        .perf-negative { color: #dc3545; }
+        .perf-missing { color: #adb5bd; font-style: italic; }
+        .perf-headline { font-size: 20px; font-weight: bold; color: #007bff; }
+    </style>
+</head>
+<body>
+<section class="section" layout:fragment="page-content">
+    <h1 class="section-title">Fund Performance</h1>
+
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <form method="GET" th:action="@{/report/fund-performance}" class="mb-4">
+        <div th:if="${#lists.isEmpty(funds)}" class="text-muted mb-3">
+            No funds registered. <a th:href="@{/settings/vgbl-funds}">Add funds first.</a>
+        </div>
+
+        <div class="d-flex align-items-end gap-3">
+            <div>
+                <label for="cnpj-input" class="form-label mb-1">Fund</label>
+                <select id="cnpj-input" name="cnpj" class="form-select" required>
+                    <option value="">Select a fund…</option>
+                    <option th:each="fund : ${funds}"
+                            th:value="${fund.cnpj}"
+                            th:selected="${fund.cnpj == selectedCnpj}"
+                            th:text="${fund.fundName + ' (' + fund.cnpj + ')'}"></option>
+                </select>
+            </div>
+            <div>
+                <label for="fy-input" class="form-label mb-1">Financial Year</label>
+                <select id="fy-input" name="fy" class="form-select" required>
+                    <option value="">Select a FY…</option>
+                    <option th:each="year : ${financialYears}"
+                            th:value="${year}"
+                            th:selected="${year == selectedFy}"
+                            th:text="${(2000 + year - 1) + '-' + year}"></option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label mb-1">&nbsp;</label>
+                <button type="submit" class="btn btn-primary d-block">Search</button>
+            </div>
+        </div>
+    </form>
+
+    <div th:if="${performance != null}">
+        <hr class="section-divider"/>
+
+        <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+                <h3 class="section-title mb-0" th:text="${performance.fundName}"></h3>
+                <span class="text-muted" th:text="'CNPJ ' + ${performance.cnpj}"></span>
+            </div>
+            <div class="text-end">
+                <div class="text-muted" th:text="'FY ' + ${performance.financialYearLabel}"></div>
+                <div class="perf-headline"
+                     th:classappend="${performance.fyReturnPercent != null and performance.fyReturnPercent.signum() < 0} ? 'perf-negative' : ''"
+                     th:text="${performance.fyReturnPercent != null} ? ${performance.fyReturnPercent} + ' %' : 'n/a'"></div>
+            </div>
+        </div>
+
+        <div th:if="${!#lists.isEmpty(performance.missingMonths)}" class="alert alert-warning">
+            <strong>Incomplete data.</strong>
+            No quota value stored for
+            <span th:each="m, it : ${performance.missingMonths}"
+                  th:text="${#temporals.format(m, 'MMM yyyy')} + (${it.last} ? '' : ', ')"></span>.
+            The FY figure covers only the months shown below.
+            <a th:href="@{/import/vgbl-quotas}">Import the missing CVM data</a> for a complete report.
+        </div>
+
+        <table class="perf-grid">
+            <tr th:each="row : ${performance.monthGrid}">
+                <td th:each="slot : ${row}">
+                    <span class="perf-month" th:text="${slot.label}"></span>
+                    <span th:if="${slot.performance == null}" class="perf-missing">no data</span>
+                    <span th:if="${slot.performance != null}"
+                          class="perf-value"
+                          th:classappend="${slot.performance.returnPercent != null and slot.performance.returnPercent.signum() < 0} ? 'perf-negative' : 'perf-positive'"
+                          th:title="'Measured on ' + ${slot.performance.competenceDate}"
+                          th:text="${slot.performance.returnPercent != null} ? ${slot.performance.returnPercent} + ' %' : 'n/a'"></span>
+                </td>
+            </tr>
+        </table>
+
+        <p class="text-muted small">
+            Each month compares the last stored quota value of that month against the previous
+            month's — hover a figure to see the exact date it was measured on. Percentages are
+            independent of currency and of the number of quotas held, so no currency selector
+            applies. The FY figure is compounded, not summed.
+        </p>
+
+        <p th:if="${#lists.isEmpty(performance.months)}" class="no-data">
+            No quota data stored for this fund in FY <span th:text="${performance.financialYearLabel}"></span>.
+        </p>
+    </div>
+</section>
+</body>
+</html>

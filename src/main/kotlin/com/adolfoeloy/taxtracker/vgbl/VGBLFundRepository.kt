@@ -55,5 +55,7 @@ interface VGBLFundRepository : JpaRepository<VGBLFund, String> {
 interface IncomeDifference {
     val competenceDate: LocalDate
     val income: BigDecimal
-    val previousIncome: BigDecimal
+
+    /** Null for the first row of the window: `LAG` has nothing to look back at. */
+    val previousIncome: BigDecimal?
 }
