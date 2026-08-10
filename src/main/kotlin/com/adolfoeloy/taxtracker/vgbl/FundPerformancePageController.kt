@@ -24,18 +24,20 @@ class FundPerformancePageController(
     fun performancePage(
         model: Model,
         @RequestParam(required = false) cnpj: String?,
-        @RequestParam(required = false) fy: Int?
+        @RequestParam(required = false) fy: Int?,
+        @RequestParam(defaultValue = "BRL") currency: String
     ): String {
         model.addAttribute("funds", vgblFundRepository.findAll())
         model.addAttribute("financialYears", vgblFundService.getAvailableFinancialYears())
         model.addAttribute("selectedCnpj", cnpj)
         model.addAttribute("selectedFy", fy)
+        model.addAttribute("selectedCurrency", currency)
 
         if (cnpj.isNullOrBlank() || fy == null) {
             return "fund_performance"
         }
 
-        val performance = vgblFundService.getFundPerformanceForFY(cnpj, fy)
+        val performance = vgblFundService.getFundPerformanceForFY(cnpj, fy, currency)
 
         if (performance == null) {
             model.addAttribute("errorMessage", "No fund registered for CNPJ $cnpj")

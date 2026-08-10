@@ -97,52 +97,80 @@ class VGBLFundService(
      * Month-by-month percentage return for one fund across one Australian FY, mirroring the
      * "Rentabilidade do Fundo" block of the Bradesco statement.
      *
-     * Always evaluated in BRL: income is `quotas × quota_value` with a constant `quotas`, so both
-     * the quota count and any forex rate cancel out of the ratio. The percentages are identical
-     * in every currency, which is why this report has no currency selector.
+     * The percentages are currency-invariant — income is `quotas × quota_value` with a constant
+     * `quotas`, and both endpoints of a month are converted at that same month's rate, so both the
+     * quota count and the forex rate cancel out of the ratio. [currency] therefore only selects
+     * the denomination of the accompanying income amounts.
      */
-    fun getFundPerformanceForFY(cnpj: String, financialYear: Int): FundPerformance? {
+    fun getFundPerformanceForFY(
+        cnpj: String,
+        financialYear: Int,
+        currency: String = "BRL"
+    ): FundPerformance? {
         val fund = vgblFundRepository.findById(cnpj).orElse(null) ?: return null
 
         val fyStart = financialYearStart(financialYear)
         val fyEndExclusive = financialYearStart(financialYear + 1)
 
-        val months = getIncomeDataForPeriod(cnpj, fyStart, fyEndExclusive, "BRL")
+        val months = getIncomeDataForPeriod(cnpj, fyStart, fyEndExclusive, currency)
 
         val monthPerformances = months.map {
             val competenceDate = it.competenceDate.fromYYYYMMDDToLocalDate()
             MonthPerformance(
                 yearMonth = YearMonth.from(competenceDate),
                 competenceDate = competenceDate,
-                returnPercent = it.fundsReturnPercent?.setScale(2, RoundingMode.HALF_EVEN)
+                returnPercent = it.fundsReturnPercent?.setScale(2, RoundingMode.HALF_EVEN),
+                income = it.incomeDifference?.setScale(2, RoundingMode.HALF_EVEN)
             )
         }
 
         val reportedMonths = monthPerformances.map { it.yearMonth }.toSet()
         val fyMonths = (0L until 12L).map { YearMonth.from(fyStart).plusMonths(it) }
 
+        // Each month is converted at its own rate before being added up, matching how
+        // VGBLSummaryPageController totals a period — which is the behaviour the ATO wants.
+        //
+        // Summed from the already-rounded monthly figures on purpose. Summing the raw values and
+        // rounding once is marginally more precise but can land a cent away from the twelve
+        // numbers printed above it; on a report someone reads and files, the rows have to add up.
+        val totalIncome = monthPerformances
+            .mapNotNull { it.income }
+            .fold(BigDecimal.ZERO) { acc, value -> acc.add(value) }
+            .setScale(2, RoundingMode.HALF_EVEN)
+
         return FundPerformance(
             fundName = fund.fundName,
             cnpj = cnpj,
             financialYear = financialYear,
+            currency = currency,
             months = monthPerformances,
             fyReturnPercent = compoundedReturnPercent(months),
+            totalIncome = totalIncome,
             missingMonths = fyMonths.filterNot { reportedMonths.contains(it) }
         )
     }
 
     /**
-     * The FY figure compounds — it is not the sum of the monthly percentages. Because `LAG` chains
-     * contiguously through whatever rows exist, the product of (1 + monthly return) telescopes
-     * exactly to `lastIncome / firstPreviousIncome`, so computing it that way is both equivalent
-     * and free of the drift that folding twelve rounded percentages would accumulate.
+     * The FY figure compounds — it is not the sum of the monthly percentages.
+     *
+     * Computed as the product of (1 + monthly return) rather than by telescoping to
+     * `lastIncome / firstPreviousIncome`. The two are identical in exact arithmetic, but only the
+     * product stays currency-invariant: the telescoped endpoints come from opposite ends of the
+     * year and are converted at *different* months' rates, which would silently fold a year of
+     * BRL/AUD movement into what is supposed to be a fund return. Each monthly return already has
+     * its own month's rate cancelled out, so multiplying them is safe.
+     *
+     * The inputs carry twelve decimals, so the compounding drift is far below the 2dp displayed.
      */
     private fun compoundedReturnPercent(months: List<VGBLMonthIncome>): BigDecimal? {
-        val opening = months.firstOrNull()?.previousIncome ?: return null
-        if (opening.signum() == 0) return null
+        if (months.isEmpty()) return null
 
-        return months.last().income
-            .divide(opening, 12, RoundingMode.HALF_EVEN)
+        val growth = months.fold(BigDecimal.ONE) { acc, month ->
+            val monthlyReturn = month.fundsReturnPercent ?: return null
+            acc.multiply(BigDecimal.ONE.add(monthlyReturn.divide(ONE_HUNDRED, 16, RoundingMode.HALF_EVEN)))
+        }
+
+        return growth
             .minus(BigDecimal.ONE)
             .multiply(ONE_HUNDRED)
             .setScale(2, RoundingMode.HALF_EVEN)
@@ -193,8 +221,11 @@ data class FundPerformance(
     val fundName: String,
     val cnpj: String,
     val financialYear: Int,
+    /** Denomination of [totalIncome] and [MonthPerformance.income]. Percentages ignore it. */
+    val currency: String,
     val months: List<MonthPerformance>,
     val fyReturnPercent: BigDecimal?,
+    val totalIncome: BigDecimal,
     val missingMonths: List<YearMonth>
 ) {
     /** Bradesco names the FY by both ends: FY26 renders as "2025-26". */
@@ -234,5 +265,7 @@ data class MonthPerformance(
     val yearMonth: YearMonth,
     /** The day the percentage was actually measured on — not necessarily the true month end. */
     val competenceDate: LocalDate,
-    val returnPercent: BigDecimal?
+    val returnPercent: BigDecimal?,
+    /** Income earned in the month, in [FundPerformance.currency]. */
+    val income: BigDecimal?
 )

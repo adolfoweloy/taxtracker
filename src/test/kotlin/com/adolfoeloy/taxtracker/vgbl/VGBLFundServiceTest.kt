@@ -112,6 +112,46 @@ class VGBLFundServiceTest {
     }
 
     @Test
+    fun `should report the income earned each month alongside the percentage`() {
+        givenFund(TRUXT_CNPJ)
+        givenQuotaValues(TRUXT_CNPJ, TRUXT_FY2025_QUOTA_VALUES)
+
+        val result = subject.getFundPerformanceForFY(TRUXT_CNPJ, 25)!!
+
+        // quotas * (July quota value - June quota value), to the cent.
+        assertThat(result.months.first().income).isEqualTo("298.81".toBigDecimal())
+        assertThat(result.currency).isEqualTo("BRL")
+
+        // The FY amount is the sum of the months, unlike the compounded FY percentage. It must
+        // equal the displayed rows exactly: summing the unrounded values would give 2487.89 here,
+        // a cent adrift from the twelve figures shown on the page.
+        val summedMonths = result.months.mapNotNull { it.income }.reduce(BigDecimal::add)
+        assertThat(result.totalIncome).isEqualTo(summedMonths)
+        assertThat(result.totalIncome).isEqualTo("2487.88".toBigDecimal())
+    }
+
+    @Test
+    fun `income amounts should be converted but percentages left alone in AUD`() {
+        givenFund(TRUXT_CNPJ)
+        givenQuotaValues(TRUXT_CNPJ, TRUXT_FY2025_QUOTA_VALUES)
+        givenMonthlyVaryingAudRates()
+
+        val brl = subject.getFundPerformanceForFY(TRUXT_CNPJ, 25, "BRL")!!
+        val aud = subject.getFundPerformanceForFY(TRUXT_CNPJ, 25, "AUD")!!
+
+        assertThat(aud.currency).isEqualTo("AUD")
+        assertThat(aud.totalIncome).isNotEqualTo(brl.totalIncome)
+        assertThat(aud.months.first().income)
+            .isEqualTo(brl.months.first().income!!.multiply(audRateFor(7)).setScale(2, RoundingMode.HALF_EVEN))
+
+        // The load-bearing assertion. The rates above differ month to month, so computing the FY
+        // percentage by telescoping the first and last balances would divide two differently
+        // converted numbers and fold a year of FX movement into the fund's return.
+        assertThat(aud.fyReturnPercent).isEqualTo(brl.fyReturnPercent)
+        assertThat(aud.months.map { it.returnPercent }).isEqualTo(brl.months.map { it.returnPercent })
+    }
+
+    @Test
     fun `percentages should be identical in BRL and AUD`() {
         givenQuotaValues(TRUXT_CNPJ, TRUXT_FY2025_QUOTA_VALUES)
 
@@ -214,6 +254,19 @@ class VGBLFundServiceTest {
 
         assertThat(subject.getAvailableFinancialYears()).containsExactly(25, 26)
     }
+
+    /** A rate that moves month to month, so a currency-invariance bug cannot hide behind a constant. */
+    private fun givenMonthlyVaryingAudRates() {
+        whenever(forexServiceMock.applyForexRateFor(any<BigDecimal>(), any(), eq("AUD")))
+            .thenAnswer {
+                val amount = it.getArgument<BigDecimal>(0)
+                val date = it.getArgument<LocalDate>(1)
+                amount.multiply(audRateFor(date.monthValue))
+            }
+    }
+
+    private fun audRateFor(month: Int): BigDecimal =
+        "0.2".toBigDecimal().add(month.toBigDecimal().divide("100".toBigDecimal()))
 
     private fun givenFund(cnpj: String) {
         val fund = VGBLFund().apply {
