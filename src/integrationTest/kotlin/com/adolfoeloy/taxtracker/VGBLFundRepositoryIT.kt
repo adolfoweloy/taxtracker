@@ -37,25 +37,27 @@ class VGBLFundRepositoryIT : AbstractDatabaseIntegrationTest() {
 
     @Test
     fun `should find the incomes within a period for a given fund`() {
-        // Given: A VGBL fund with specific quotas
+        // Given: A VGBL fund with specific quotas. A round, fictitious holding — the quota count
+        // only scales the resulting balances, so nothing here depends on its value.
         val fundCnpj = "98.765.432/0001-09"
-        val fundQuotas = "18947.530971000000".toBigDecimal()
+        val fundQuotas = "1000.000000000000".toBigDecimal()
         val fund = FundMother.createFund(fundCnpj, fundQuotas)
         vgblFundRepository.save(fund)
 
-        // And: Monthly quota values from July to November
+        // And: Monthly quota values from July to November. Each expected balance is simply
+        // fundQuotas * the quota value below, and every assertion recomputes it.
         val quotaBuilder = VGBLQuotaMother.withVGBLFund(fund)
         val quotas = listOf(
-            createQuota(quotaBuilder, "1.234567890123", "2024-07-01"),  // 23392.013333908
-            createQuota(quotaBuilder, "1.276458300000", "2024-07-31"),  // 24185.733172440009
-            createQuota(quotaBuilder, "1.345678901234", "2024-08-01"),  // 25497.292658152
-            createQuota(quotaBuilder, "1.300695300000", "2024-08-29"),  // 24644.964480584136300000000000
-            createQuota(quotaBuilder, "1.456789012345", "2024-09-04"),  // 27602.554929619
-            createQuota(quotaBuilder, "1.308531400000", "2024-09-30"),  // 24793.439228025989400000000000
-            createQuota(quotaBuilder, "1.567890123456", "2024-10-01"),  // 29707.646673308
-            createQuota(quotaBuilder, "1.333202300000", "2024-10-31"),  // 25260.891869858433300000000000
-            createQuota(quotaBuilder, "1.333937308600", "2024-11-03"),   // 31811.033139208
-            createQuota(quotaBuilder, "1.334469301700", "2024-11-06")   // 25284.898423809492950700000000
+            createQuota(quotaBuilder, "1.234567890123", "2024-07-01"),
+            createQuota(quotaBuilder, "1.276458300000", "2024-07-31"),
+            createQuota(quotaBuilder, "1.345678901234", "2024-08-01"),
+            createQuota(quotaBuilder, "1.300695300000", "2024-08-29"),
+            createQuota(quotaBuilder, "1.456789012345", "2024-09-04"),
+            createQuota(quotaBuilder, "1.308531400000", "2024-09-30"),
+            createQuota(quotaBuilder, "1.567890123456", "2024-10-01"),
+            createQuota(quotaBuilder, "1.333202300000", "2024-10-31"),
+            createQuota(quotaBuilder, "1.333937308600", "2024-11-03"),
+            createQuota(quotaBuilder, "1.334469301700", "2024-11-06")
         )
         quotas.forEach { vgblQuotaRepository.save(it) }
 

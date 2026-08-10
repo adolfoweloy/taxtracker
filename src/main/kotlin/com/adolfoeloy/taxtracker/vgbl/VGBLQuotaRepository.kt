@@ -15,6 +15,9 @@ interface VGBLQuotaRepository : JpaRepository<VGBLQuota, VGBLQuotaId> {
         ORDER BY f.fundName, q.id.competenceDate DESC
     """)
     fun findAllWithFundName(): List<QuotaWithFundName>
+
+    @Query("SELECT DISTINCT q.id.competenceDate FROM VGBLQuota q ORDER BY q.id.competenceDate")
+    fun findDistinctCompetenceDates(): List<LocalDate>
 }
 
 interface QuotaWithFundName {
