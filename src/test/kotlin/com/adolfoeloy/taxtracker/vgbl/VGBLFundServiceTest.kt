@@ -119,15 +119,15 @@ class VGBLFundServiceTest {
         val result = subject.getFundPerformanceForFY(TRUXT_CNPJ, 25)!!
 
         // quotas * (July quota value - June quota value), to the cent.
-        assertThat(result.months.first().income).isEqualTo("298.81".toBigDecimal())
+        assertThat(result.months.first().income).isEqualTo("15.77".toBigDecimal())
         assertThat(result.currency).isEqualTo("BRL")
 
         // The FY amount is the sum of the months, unlike the compounded FY percentage. It must
-        // equal the displayed rows exactly: summing the unrounded values would give 2487.89 here,
-        // a cent adrift from the twelve figures shown on the page.
+        // equal the displayed rows exactly: summing the unrounded values would give 131.30 here,
+        // two cents adrift from the twelve figures shown on the page.
         val summedMonths = result.months.mapNotNull { it.income }.reduce(BigDecimal::add)
         assertThat(result.totalIncome).isEqualTo(summedMonths)
-        assertThat(result.totalIncome).isEqualTo("2487.88".toBigDecimal())
+        assertThat(result.totalIncome).isEqualTo("131.32".toBigDecimal())
     }
 
     @Test
@@ -308,7 +308,8 @@ class VGBLFundServiceTest {
 
     private companion object {
         const val TRUXT_CNPJ = "26.756.416/0001-28"
-        val QUOTAS: BigDecimal = "18947.530971000000".toBigDecimal()
+        /** Deliberately a round, fictitious holding — it only scales the amounts, never the percentages. */
+        val QUOTAS: BigDecimal = "1000.000000000000".toBigDecimal()
         val FY2025_START: LocalDate = LocalDate.of(2024, 7, 1)
         val FY2026_START: LocalDate = LocalDate.of(2025, 7, 1)
 
