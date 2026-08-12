@@ -101,6 +101,12 @@ tasks.register<Test>("integrationTest") {
 
     shouldRunAfter(tasks.test)
     useJUnitPlatform()
+
+    // docker-java defaults to Docker API 1.32, which Docker Engine 29 rejects outright
+    // ("client version 1.32 is too old. Minimum supported API version is 1.40"), so Testcontainers
+    // cannot start a container at all. docker-java only reads this as a system property — the
+    // DOCKER_API_VERSION environment variable is not consulted on this path.
+    systemProperty("api.version", "1.44")
     
     // Disable caching for integration tests
     outputs.upToDateWhen { false }
