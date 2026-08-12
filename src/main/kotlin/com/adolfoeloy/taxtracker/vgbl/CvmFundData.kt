@@ -37,13 +37,13 @@ class CsvCvmFundDataImpl : CsvCvmFundData {
             lines
                 .map { it.split(';') }
                 .filter { it.getOrNull(CNPJ_COLUMN) == cnpj }
-                .mapNotNull { columns -> competenceDate(columns)?.let { date -> date to columns } }
+                .mapNotNull { columns -> competenceDate(columns)?.let { DatedRow(it, columns) } }
                 // `>=` keeps the later line when two share the same date, matching what taking the
                 // last matching line used to do.
-                .reduceOrNull { best, current -> if (current.first >= best.first) current else best }
+                .reduceOrNull { best, current -> if (current.date >= best.date) current else best }
         }
 
-        return latest?.second?.let { columns ->
+        return latest?.columns?.let { columns ->
             CvmFundData(
                 fundType = columns.getOrNull(0) ?: "",
                 cnpj = columns.getOrNull(CNPJ_COLUMN) ?: "",
@@ -61,6 +61,9 @@ class CsvCvmFundDataImpl : CsvCvmFundData {
 
     private fun competenceDate(columns: List<String>): LocalDate? =
         columns.getOrNull(DATE_COLUMN)?.let { runCatching { it.fromYYYYMMDDToLocalDate() }.getOrNull() }
+
+    /** A row kept together with its parsed date, so the scan compares without re-parsing. */
+    private data class DatedRow(val date: LocalDate, val columns: List<String>)
 
     private companion object {
         const val CNPJ_COLUMN = 1   // CNPJ_FUNDO_CLASSE
