@@ -77,6 +77,58 @@ class VGBLFundServiceTest {
     }
 
     @Test
+    fun `re-importing a date should overwrite the stored quota value`() {
+        val argumentCaptor = argumentCaptor<VGBLQuota>()
+        val id = VGBLQuotaId(SAMPLE_CNPJ, SAMPLE_DATE.fromYYYYMMDDToLocalDate())
+        givenStoredQuota(id, WRONG_QUOTA_VALUE)
+
+        // The case this exists for: a wrong value on record, corrected by re-importing CVM's file.
+        val result = subject.saveQuotaValue(cvmFundData(SAMPLE_DATE, CORRECT_QUOTA_VALUE))
+
+        verify(vgblQuotaRepositoryMock).save(argumentCaptor.capture())
+        assertThat(argumentCaptor.firstValue.quotaValue)
+            .isEqualByComparingTo(CORRECT_QUOTA_VALUE.toBigDecimal())
+        assertThat(result.quota.quotaValue).isEqualByComparingTo(CORRECT_QUOTA_VALUE.toBigDecimal())
+        assertThat(result.replacedQuotaValue).isEqualByComparingTo(WRONG_QUOTA_VALUE.toBigDecimal())
+    }
+
+    @Test
+    fun `re-importing an unchanged value should not report a replacement`() {
+        val id = VGBLQuotaId(SAMPLE_CNPJ, SAMPLE_DATE.fromYYYYMMDDToLocalDate())
+        givenStoredQuota(id, CORRECT_QUOTA_VALUE)
+
+        val result = subject.saveQuotaValue(cvmFundData(SAMPLE_DATE, CORRECT_QUOTA_VALUE))
+
+        assertThat(result.replacedQuotaValue).isNull()
+    }
+
+    @Test
+    fun `importing a new date should not report a replacement`() {
+        whenever(vgblQuotaRepositoryMock.findById(any())).thenReturn(Optional.empty())
+
+        val result = subject.saveQuotaValue(cvmFundData("2024-05-31", CORRECT_QUOTA_VALUE))
+
+        assertThat(result.replacedQuotaValue).isNull()
+        assertThat(result.quota.quotaValue).isEqualByComparingTo(CORRECT_QUOTA_VALUE.toBigDecimal())
+    }
+
+    private fun givenStoredQuota(id: VGBLQuotaId, quotaValue: String) {
+        val stored = VGBLQuota().apply {
+            this.id = id
+            fundClass = "CLASSES - FIF"
+            this.quotaValue = quotaValue.fromStringToBigDecimal(scale = 12)
+        }
+        whenever(vgblQuotaRepositoryMock.findById(id)).thenReturn(Optional.of(stored))
+    }
+
+    private fun cvmFundData(date: String, quotaValue: String) = CvmFundData(
+        fundType = "CLASSES - FIF",
+        cnpj = SAMPLE_CNPJ,
+        date = date,
+        quotaValue = quotaValue
+    )
+
+    @Test
     fun `base month should return December when end month is January`() {
         val result = subject.previousMonth("202401".fromYearMonthString())
         assertThat(result).isEqualTo("202312".fromYearMonthString())
@@ -308,6 +360,12 @@ class VGBLFundServiceTest {
 
     private companion object {
         const val TRUXT_CNPJ = "26.756.416/0001-28"
+
+        // Fictitious fixtures for the import-overwrite tests — nothing here is real data.
+        const val SAMPLE_CNPJ = "12.345.678/0001-90"
+        const val SAMPLE_DATE = "2024-04-30"
+        const val WRONG_QUOTA_VALUE = "1.100000000000"
+        const val CORRECT_QUOTA_VALUE = "1.200000000000"
         /** Deliberately a round, fictitious holding — it only scales the amounts, never the percentages. */
         val QUOTAS: BigDecimal = "1000.000000000000".toBigDecimal()
         val FY2025_START: LocalDate = LocalDate.of(2024, 7, 1)
