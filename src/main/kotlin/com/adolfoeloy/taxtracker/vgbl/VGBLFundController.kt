@@ -92,13 +92,15 @@ class VGBLFundController(
                     cnpj = cnpj
                 ))
             } else {
-                val vgblQuota = vgblFundService.saveQuotaValue(cvmFundData)
+                val importResult = vgblFundService.saveQuotaValue(cvmFundData)
+                val vgblQuota = importResult.quota
                 result.processed.add(
                     VGBLImportResultItem(
                         cnpj = vgblQuota.id.cnpj,
                         fundType = vgblQuota.fundClass,
                         quotaValue = vgblQuota.quotaValue.toString(),
-                        competenceDate = vgblQuota.id.competenceDate.toString()
+                        competenceDate = vgblQuota.id.competenceDate.toString(),
+                        replacedQuotaValue = importResult.replacedQuotaValue?.toString()
                     )
                 )
             }
@@ -132,7 +134,9 @@ class VGBLFundController(
         val cnpj: String,
         val fundType: String,
         val quotaValue: String,
-        val competenceDate: String
+        val competenceDate: String,
+        /** Set only when this import changed an existing value. */
+        val replacedQuotaValue: String? = null
     )
 
     data class VGBLFundResponse(

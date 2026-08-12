@@ -64,6 +64,7 @@
                 <th scope="col">CNPJ</th>
                 <th scope="col">Competence Date</th>
                 <th scope="col">Quota Value (BRL)</th>
+                <th scope="col">Result</th>
             </tr>
             </thead>
             <tbody>
@@ -72,6 +73,11 @@
                 <td th:text="${q.cnpj}"></td>
                 <td th:text="${q.competenceDate}"></td>
                 <td th:text="${q.quotaValue}"></td>
+                <td th:if="${q.replacedQuotaValue == null}" class="text-muted">stored</td>
+                <td th:if="${q.replacedQuotaValue != null}">
+                    <span class="badge bg-warning text-dark">replaced</span>
+                    <span class="text-muted" th:text="'was ' + ${q.replacedQuotaValue}"></span>
+                </td>
             </tr>
             </tbody>
         </table>

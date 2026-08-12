@@ -44,13 +44,15 @@ class VGBLQuotasImportPageController(
             if (cvmFundData == null) {
                 errors.add("CVM fund data not found for CNPJ: $cnpj")
             } else {
-                val quota = vgblFundService.saveQuotaValue(cvmFundData)
+                val importResult = vgblFundService.saveQuotaValue(cvmFundData)
+                val quota = importResult.quota
                 val fund = vgblFundRepository.findById(cnpj).orElse(null)
                 imported.add(ImportedQuota(
                     fundName = fund?.fundName ?: cnpj,
                     cnpj = quota.id.cnpj,
                     competenceDate = quota.id.competenceDate.toString(),
-                    quotaValue = quota.quotaValue.toString()
+                    quotaValue = quota.quotaValue.toString(),
+                    replacedQuotaValue = importResult.replacedQuotaValue?.toString()
                 ))
             }
         }
@@ -67,6 +69,8 @@ class VGBLQuotasImportPageController(
         val fundName: String,
         val cnpj: String,
         val competenceDate: String,
-        val quotaValue: String
+        val quotaValue: String,
+        /** Set only when this import changed an existing value, so corrections are visible. */
+        val replacedQuotaValue: String?
     )
 }

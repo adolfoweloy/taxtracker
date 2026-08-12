@@ -21,29 +21,39 @@ class VGBLFundService(
     private val forexService: ForexService,
 ) {
 
+    /**
+     * Stores one day's quota value, **replacing** whatever is already held for that
+     * (cnpj, competence date). CVM is the source of truth, so re-importing a file is the way to
+     * correct a bad value.
+     *
+     * This previously returned the stored row untouched when one existed. That made a wrong value
+     * permanent — re-importing looked like it had worked, because the import page reported the
+     * skipped row exactly as though it had been written.
+     */
     fun saveQuotaValue(
         cvmFundData: CvmFundData
-    ): VGBLQuota {
+    ): QuotaImportResult {
 
-        val vgblQuota = vgblQuotaRepository.findById(VGBLQuotaId(
+        val id = VGBLQuotaId(
             cnpj = cvmFundData.cnpj,
             competenceDate = cvmFundData.date.fromYYYYMMDDToLocalDate()
-        ))
-
-        if (vgblQuota.isPresent) {
-            return vgblQuota.get()
-        }
+        )
+        val importedQuotaValue = cvmFundData.quotaValue.fromStringToBigDecimal(scale = 12)
+        val storedQuotaValue = vgblQuotaRepository.findById(id).orElse(null)?.quotaValue
 
         val quota = VGBLQuota().apply {
-            id.cnpj = cvmFundData.cnpj
-            id.competenceDate = cvmFundData.date.fromYYYYMMDDToLocalDate()
+            this.id = id
             fundClass = cvmFundData.fundType
-            quotaValue = cvmFundData.quotaValue.fromStringToBigDecimal(scale = 12)
+            quotaValue = importedQuotaValue
         }
 
         vgblQuotaRepository.save(quota)
 
-        return quota
+        return QuotaImportResult(
+            quota = quota,
+            // Only a genuine change is worth surfacing; re-importing the same file is a no-op.
+            replacedQuotaValue = storedQuotaValue?.takeIf { it.compareTo(importedQuotaValue) != 0 }
+        )
     }
 
     fun saveFund(vgblFundService: VGBLFundRequest): VGBLFund {
@@ -200,6 +210,12 @@ class VGBLFundService(
         val ONE_HUNDRED: BigDecimal = BigDecimal("100")
     }
 }
+
+data class QuotaImportResult(
+    val quota: VGBLQuota,
+    /** The value this import overwrote, or null when the row is new or the value was unchanged. */
+    val replacedQuotaValue: BigDecimal?
+)
 
 data class VGBLFundRequest(
     val cnpj: String,
