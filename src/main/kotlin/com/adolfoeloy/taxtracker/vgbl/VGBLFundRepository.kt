@@ -9,33 +9,18 @@ interface VGBLFundRepository : JpaRepository<VGBLFund, String> {
 
     @Query(
         value = """
-            WITH income_by_date AS (
-                SELECT 
+            WITH monthly_income AS (
+                SELECT DISTINCT ON (DATE_TRUNC('month', vq.competence_date))
                     vq.competence_date,
-                    (f.quotas * vq.quota_value) AS income,
-                    DATE_TRUNC('month', vq.competence_date)::date as month_start
+                    (f.quotas * vq.quota_value) AS income
                 FROM vgbl_quota vq
                 INNER JOIN fund f ON f.cnpj = vq.cnpj
                 WHERE f.cnpj = :cnpj
-                AND competence_date >= :startDate 
-                AND competence_date < :endDate
-            ),
-            last_day_per_month AS (
-                SELECT 
-                    month_start,
-                    MAX(competence_date) as last_saved_date
-                FROM income_by_date
-                GROUP BY month_start
-            ),
-            monthly_income AS (
-                SELECT 
-                    ibd.competence_date,
-                    ibd.income
-                FROM income_by_date ibd
-                INNER JOIN last_day_per_month ldpm 
-                    ON ibd.competence_date = ldpm.last_saved_date
+                AND vq.competence_date >= :startDate
+                AND vq.competence_date < :endDate
+                ORDER BY DATE_TRUNC('month', vq.competence_date), vq.competence_date DESC
             )
-            SELECT 
+            SELECT
                 competence_date,
                 income,
                 LAG(income) OVER (ORDER BY competence_date) AS previous_income
