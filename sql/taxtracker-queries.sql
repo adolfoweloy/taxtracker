@@ -1,14 +1,20 @@
-select * from product;
+
+select * from vgbl_track;
+
+select * from fund;
+
+select * from balance;
 
 select p.*, b.*
 from balance b
 inner join product p on p.id = b.product_id
 where b.balance_date between '2022-07-01' and '2022-07-31';
+--
+--
+--delete from balance;
+--delete from product;
 
-
-delete from balance;
-delete from product;
-
+  
 select sum(interest), sum(br_tax) from "transaction";
 
 CREATE TEMPORARY TABLE temp_monthly_interest_analysis AS
@@ -36,8 +42,8 @@ ORDER BY month_year;
 
 
 select * from forex;
-update balance set br_au_forex = 271244;
-update transaction set br_au_forex = 271244;
+--update balance set br_au_forex = 271244;
+--update transaction set br_au_forex = 271244;
 
 ----------------------------------------------------------------------------------
 -- get total interest since begining
@@ -60,5 +66,60 @@ from (
 -- get total tax paid in BR
 select sum(br_tax) from transaction;
 
+
+
+------------------------------------------------------------------------
+WITH income_by_date AS (
+    SELECT 
+        vq.competence_date,
+        (f.quotas * vq.quota_value) AS income,
+        DATE_TRUNC('month', vq.competence_date)::date as month_start
+    FROM vgbl_quota vq
+    INNER JOIN fund f ON f.cnpj = vq.cnpj
+    WHERE f.cnpj = '26.756.416/0001-28'   
+    AND competence_date >= '2025-06-01'
+    AND competence_date < '2025-09-01'
+),
+last_day_per_month AS (
+    SELECT 
+        month_start,
+        MAX(competence_date) as last_saved_date
+    FROM income_by_date
+    GROUP BY month_start
+),
+monthly_income AS (
+    SELECT 
+        ibd.competence_date,
+        ibd.income
+    FROM income_by_date ibd
+    INNER JOIN last_day_per_month ldpm 
+        ON ibd.competence_date = ldpm.last_saved_date
+)
+SELECT 
+    competence_date,
+    income,
+    LAG(income) OVER (ORDER BY competence_date) AS previous_income
+FROM monthly_income
+ORDER BY competence_date;
+
+
+
+
+
+WITH monthly_income AS (
+    SELECT DISTINCT ON (DATE_TRUNC('month', vq.competence_date))
+        vq.competence_date,
+        (f.quotas * vq.quota_value) AS income
+    FROM vgbl_quota vq
+    INNER JOIN fund f ON f.cnpj = vq.cnpj
+    WHERE f.cnpj = '26.756.416/0001-28'   
+      AND vq.competence_date >= '2025-06-01'
+      AND vq.competence_date <  '2025-09-01'
+    ORDER BY DATE_TRUNC('month', vq.competence_date), vq.competence_date desc
+)
+SELECT competence_date, income,
+       LAG(income) OVER (ORDER BY competence_date) AS previous_income
+FROM monthly_income
+ORDER BY competence_date;
 
 
