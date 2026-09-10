@@ -4,6 +4,8 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
@@ -16,6 +18,7 @@ import java.time.LocalDate
 class VGBLTrack {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Int = 0
 
     @ManyToOne
@@ -32,7 +35,7 @@ class VGBLTrack {
     @Column(name = "transaction_type")
     var transactionType: VGBLTransactionType = VGBLTransactionType.CONTRIBUTION
 
-    @Column(name = "transaction_amount", precision = 27, scale = 12)
+    @Column(name = "amount", precision = 27, scale = 12)
     var amount: BigDecimal = BigDecimal.ZERO
 
     @Column(name = "quota_price", precision = 27, scale = 12)
