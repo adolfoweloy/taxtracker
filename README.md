@@ -44,6 +44,19 @@ docker exec -i tax-tracker-db psql -U postgres -d tax_tracker < /path/to/your/du
 
 **Latest dump**: `taxtracker_full_dump_20260809.sql`
 
+#### Troubleshooting: can't connect to PostgreSQL with NordVPN on
+
+If NordVPN is connected with its firewall enabled, it can silently block traffic to the
+Docker bridge network, so the app hangs or times out connecting to `taxtracker_postgres`
+even though `docker ps` and `pg_isready` both report the container as healthy (those checks
+don't cross the bridge, so they don't see the problem).
+
+Fix:
+
+```bash
+nordvpn set lan-discovery enable
+```
+
 ### 2. Run the Application
 
 Using the Gradle wrapper:
