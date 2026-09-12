@@ -7,8 +7,8 @@ services:
     ports:
       - 5432:5432
     environment:
-      - POSTGRES_USER=taxtracker
-      - POSTGRES_PASSWORD=taxtracker
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=taxtracker
     volumes:
       - pg_data:/var/lib/postgresql/data

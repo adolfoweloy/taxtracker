@@ -7,8 +7,8 @@ spring:
   application.name: taxtracker
   datasource:
     url: jdbc:postgresql://localhost:5432/taxtracker
-    username: taxtracker
-    password: taxtracker
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   flyway:
     enabled: true
   servlet:
