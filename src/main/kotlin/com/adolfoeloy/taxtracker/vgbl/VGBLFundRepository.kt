@@ -9,15 +9,29 @@ interface VGBLFundRepository : JpaRepository<VGBLFund, String> {
 
     @Query(
         value = """
-            WITH monthly_income AS (
+            WITH redemption AS (
+                SELECT DISTINCT ON (cnpj) cnpj, transaction_type, transaction_date
+                FROM vgbl_track
+                WHERE cnpj = :cnpj
+                  AND transaction_type = 'REDEMPTION'
+                ORDER BY cnpj, transaction_date DESC
+                LIMIT 1
+            ),
+            monthly_income AS (
                 SELECT DISTINCT ON (DATE_TRUNC('month', vq.competence_date))
                     vq.competence_date,
                     (f.quotas * vq.quota_value) AS income
                 FROM vgbl_quota vq
                 INNER JOIN fund f ON f.cnpj = vq.cnpj
+                LEFT JOIN redemption r ON r.cnpj = f.cnpj
                 WHERE f.cnpj = :cnpj
                 AND vq.competence_date >= :startDate
-                AND vq.competence_date < :endDate
+                AND 
+                    CASE
+                        WHEN EXISTS (SELECT 1 FROM redemption r WHERE r.cnpj = f.cnpj AND r.transaction_date <= vq.competence_date)
+                        THEN vq.competence_date < r.transaction_date
+                        ELSE vq.competence_date < :endDate
+                    END
                 ORDER BY DATE_TRUNC('month', vq.competence_date), vq.competence_date DESC
             )
             SELECT
