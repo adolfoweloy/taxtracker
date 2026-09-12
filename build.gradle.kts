@@ -1,9 +1,19 @@
+buildscript {
+    dependencies {
+        // Flyway 10 moved PostgreSQL support out of flyway-core, so the plugin's own
+        // classpath needs it explicitly - the `implementation` dependency below only
+        // applies to the app's runtime classpath, not the plugin's.
+        classpath("org.flywaydb:flyway-database-postgresql:10.20.1")
+    }
+}
+
 plugins {
 	kotlin("jvm") version "1.9.25"
 	kotlin("plugin.spring") version "1.9.25"
     kotlin("plugin.jpa") version "1.9.25"
 	id("org.springframework.boot") version "3.4.4"
 	id("io.spring.dependency-management") version "1.1.7"
+    id("org.flywaydb.flyway") version "10.20.1"
 }
 
 group = "com.adolfoeloy"
@@ -80,6 +90,20 @@ dependencies {
     integrationTestImplementation("org.testcontainers:junit-jupiter")
     integrationTestImplementation("org.testcontainers:postgresql")
 
+}
+
+// Falls back to reading .env directly so `./gradlew flywayInfo` etc. work without
+// requiring DB_USERNAME/DB_PASSWORD to already be exported in the shell.
+fun envOrDotEnv(key: String): String? =
+    System.getenv(key) ?: file(".env").takeIf { it.exists() }
+        ?.readLines()
+        ?.firstOrNull { it.startsWith("$key=") }
+        ?.substringAfter("=")
+
+flyway {
+    url = "jdbc:postgresql://localhost:5432/taxtracker"
+    user = envOrDotEnv("DB_USERNAME")
+    password = envOrDotEnv("DB_PASSWORD")
 }
 
 kotlin {
