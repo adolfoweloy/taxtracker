@@ -1,0 +1,1 @@
+ALTER TABLE vgbl_track ADD COLUMN full_redemption BOOLEAN DEFAULT FALSE;
