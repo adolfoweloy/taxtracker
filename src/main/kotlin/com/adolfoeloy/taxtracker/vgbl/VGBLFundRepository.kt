@@ -18,10 +18,38 @@ interface VGBLFundRepository : JpaRepository<VGBLFund, String> {
                 ORDER BY cnpj, transaction_date DESC
                 LIMIT 1
             ),
+            quota_balance AS (
+                SELECT
+                    cnpj,
+                    transaction_date,
+                    SUM(
+                        CASE transaction_type
+                            WHEN 'CONTRIBUTION' THEN quotas
+                            WHEN 'REDEMPTION' THEN -quotas
+                        END
+                    ) OVER (
+                        PARTITION BY cnpj
+                        ORDER BY transaction_date, id
+                        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+                    ) AS quotas_held
+                FROM vgbl_track
+                WHERE cnpj = :cnpj
+            ),
             monthly_income AS (
                 SELECT DISTINCT ON (DATE_TRUNC('month', vq.competence_date))
                     vq.competence_date,
-                    (f.quotas * vq.quota_value) AS income
+                    (
+                        COALESCE(
+                            (
+                                SELECT qb.quotas_held
+                                FROM quota_balance qb
+                                WHERE qb.transaction_date <= vq.competence_date
+                                ORDER BY qb.transaction_date DESC
+                                LIMIT 1
+                            ),
+                            f.quotas
+                        ) * vq.quota_value
+                    ) AS income
                 FROM vgbl_quota vq
                 INNER JOIN fund f ON f.cnpj = vq.cnpj
                 LEFT JOIN redemption r ON r.cnpj = f.cnpj
