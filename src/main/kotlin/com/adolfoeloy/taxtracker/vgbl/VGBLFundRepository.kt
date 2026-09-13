@@ -14,6 +14,7 @@ interface VGBLFundRepository : JpaRepository<VGBLFund, String> {
                 FROM vgbl_track
                 WHERE cnpj = :cnpj
                   AND transaction_type = 'REDEMPTION'
+                  AND full_redemption = true
                 ORDER BY cnpj, transaction_date DESC
                 LIMIT 1
             ),
@@ -26,12 +27,16 @@ interface VGBLFundRepository : JpaRepository<VGBLFund, String> {
                 LEFT JOIN redemption r ON r.cnpj = f.cnpj
                 WHERE f.cnpj = :cnpj
                 AND vq.competence_date >= :startDate
-                AND 
-                    CASE
-                        WHEN EXISTS (SELECT 1 FROM redemption r WHERE r.cnpj = f.cnpj AND r.transaction_date <= vq.competence_date)
-                        THEN vq.competence_date < r.transaction_date
-                        ELSE vq.competence_date < :endDate
-                    END
+                AND CASE
+                    WHEN EXISTS (
+                        SELECT 1 
+                        FROM redemption r 
+                        WHERE r.cnpj = vq.cnpj 
+                        AND r.transaction_date <= vq.competence_date
+                    )
+                    THEN vq.competence_date < r.transaction_date
+                    ELSE vq.competence_date < :endDate
+                END
                 ORDER BY DATE_TRUNC('month', vq.competence_date), vq.competence_date DESC
             )
             SELECT

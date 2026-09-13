@@ -43,6 +43,9 @@ class VGBLTrack {
 
     @Column(name = "br_tax", precision = 27, scale = 12)
     var brTax: BigDecimal = BigDecimal.ZERO
+
+    @Column(name = "full_redemption")
+    var fullRedemption: Boolean = false
 }
 
 enum class VGBLTransactionType {
