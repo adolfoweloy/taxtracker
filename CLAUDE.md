@@ -52,6 +52,7 @@ docker-compose up -d
 - **Australian Financial Year:** July–June. Reports group by FY accordingly.
 - **Flyway migrations:** Schema managed in `src/main/resources/db/migration/` (V001–V006).
 - **Thymeleaf layout dialect:** `layout.html` is the master template with sidebar navigation. Views extend it.
+- **VGBL exit month is bounded by the redemption's valuation date, not its credit date:** `VGBLFundRepository`'s query cuts income off at `vgbl_track.transaction_date` and `DISTINCT ON` keeps the *latest* surviving row of each month, so the exit month ends on whichever quota row is nearest below the cutoff. A redemption is priced at its valuation quota (D+1 of the request) but credited several business days later, so those two dates pick different rows. For the TRUXT MACRO exit the valuation date was 2025-11-04 — that row had never been imported, and the stored 11-03 and 11-06 values did not match the CVM file. Fixed by importing 11-04 and deleting 11-03, 11-06 and 11-07. Post-exit rows need no cleanup: the cutoff already ignores them, and an import only ever writes the file's latest day (`CsvCvmFundDataImpl.loadFrom`).
 
 ### Testing
 
