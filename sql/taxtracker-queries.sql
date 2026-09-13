@@ -1,5 +1,84 @@
 
-select * from vgbl_track;
+select * from vgbl_track where cnpj = '26.756.416/0001-28';
+
+select * from vgbl_quota 
+where cnpj = '26.756.416/0001-28' 
+and competence_date between '2025-11-01' and '2025-11-28'
+order by competence_date desc;
+
+
+select * from fund;
+
+
+
+
+WITH
+redemption AS (
+    SELECT DISTINCT ON (cnpj) cnpj, transaction_type, transaction_date
+    FROM vgbl_track
+    WHERE cnpj = '26.756.416/0001-28'
+      AND transaction_type = 'REDEMPTION'
+    ORDER BY cnpj, transaction_date DESC
+    LIMIT 1
+),
+monthly_income AS (
+    SELECT DISTINCT ON (DATE_TRUNC('month', vq.competence_date))
+        vq.competence_date,
+        (f.quotas * vq.quota_value) AS income
+    FROM vgbl_quota vq
+    INNER JOIN fund f ON f.cnpj = vq.cnpj
+    LEFT JOIN redemption r ON r.cnpj = f.cnpj
+    WHERE f.cnpj = '26.756.416/0001-28'
+      AND vq.competence_date >= '2025-06-01'
+      AND CASE
+            WHEN EXISTS (select 1 from redemption r where r.cnpj = f.cnpj and r.transaction_date <= vq.competence_date)
+            THEN vq.competence_date < r.transaction_date
+            ELSE vq.competence_date < '2026-07-01'
+          END
+    ORDER BY DATE_TRUNC('month', vq.competence_date), vq.competence_date DESC
+)
+SELECT
+    competence_date,
+    income,
+    LAG(income) OVER (ORDER BY competence_date) AS previous_income
+FROM monthly_income
+ORDER BY competence_date;
+
+
+
+WITH
+redemption AS (
+    SELECT DISTINCT ON (cnpj) cnpj, transaction_type, transaction_date
+    FROM vgbl_track
+    WHERE cnpj = '26.756.416/0001-28'
+      AND transaction_type = 'REDEMPTION'
+    ORDER BY cnpj, transaction_date DESC
+    LIMIT 1
+),
+monthly_income AS (
+    SELECT DISTINCT ON (DATE_TRUNC('month', vq.competence_date))
+        vq.competence_date,
+        (f.quotas * vq.quota_value) AS income
+    FROM vgbl_quota vq
+    INNER JOIN fund f ON f.cnpj = vq.cnpj
+    LEFT JOIN redemption r ON r.cnpj = f.cnpj
+    WHERE f.cnpj = '26.756.416/0001-28'
+      AND vq.competence_date >= '2025-06-01'
+      AND CASE
+            WHEN r.transaction_date IS NOT NULL
+            THEN vq.competence_date < r.transaction_date
+            ELSE vq.competence_date < '2026-07-01'
+          END
+    ORDER BY DATE_TRUNC('month', vq.competence_date), vq.competence_date DESC
+)
+SELECT
+    competence_date,
+    income,
+    LAG(income) OVER (ORDER BY competence_date) AS previous_income
+FROM monthly_income
+ORDER BY competence_date;
+
+
 
 select * from fund;
 
@@ -78,7 +157,7 @@ WITH income_by_date AS (
     INNER JOIN fund f ON f.cnpj = vq.cnpj
     WHERE f.cnpj = '26.756.416/0001-28'   
     AND competence_date >= '2025-06-01'
-    AND competence_date < '2025-09-01'
+    AND competence_date < '2025-10-01'
 ),
 last_day_per_month AS (
     SELECT 
