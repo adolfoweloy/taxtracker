@@ -57,20 +57,7 @@ class CsvCvmFundDataImpl : CsvCvmFundData {
                 .reduceOrNull { best, current -> if (current.date >= best.date) current else best }
         }
 
-        return latest?.columns?.let { columns ->
-            CvmFundData(
-                fundType = columns.getOrNull(0) ?: "",
-                cnpj = columns.getOrNull(CNPJ_COLUMN) ?: "",
-                subclassId = columns.getOrNull(2) ?: "",
-                date = columns.getOrNull(DATE_COLUMN) ?: "",
-                totalValue = columns.getOrNull(4) ?: "",
-                quotaValue = columns.getOrNull(5) ?: "",
-                netAssetValue = columns.getOrNull(6) ?: "",
-                dailyCaptation = columns.getOrNull(7) ?: "",
-                dailyRedemption = columns.getOrNull(8) ?: "",
-                numberOfShareholders = columns.getOrNull(9) ?: ""
-            )
-        }
+        return latest?.columns?.let { columns -> createCvmFundData(columns) }
     }
 
     override fun loadAllFrom(
@@ -81,22 +68,25 @@ class CsvCvmFundDataImpl : CsvCvmFundData {
             lines
                 .map { it.split(';') }
                 .filter { it.getOrNull(CNPJ_COLUMN) == cnpj }
-                .map { columns -> CvmFundData(
-                        fundType = columns.getOrNull(0) ?: "",
-                        cnpj = columns.getOrNull(CNPJ_COLUMN) ?: "",
-                        subclassId = columns.getOrNull(2) ?: "",
-                        date = columns.getOrNull(DATE_COLUMN) ?: "",
-                        totalValue = columns.getOrNull(4) ?: "",
-                        quotaValue = columns.getOrNull(QUOTA_VALUE) ?: "",
-                        netAssetValue = columns.getOrNull(6) ?: "",
-                        dailyCaptation = columns.getOrNull(7) ?: "",
-                        dailyRedemption = columns.getOrNull(8) ?: "",
-                        numberOfShareholders = columns.getOrNull(9) ?: ""
-                    )
-                }
+                .map { columns -> createCvmFundData(columns) }
                 .toList()
         }
     }
+
+    private fun createCvmFundData(columns: List<String>) =
+        CvmFundData(
+            fundType = columns.getOrNull(0) ?: "",
+            cnpj = columns.getOrNull(CNPJ_COLUMN) ?: "",
+            subclassId = columns.getOrNull(2) ?: "",
+            date = columns.getOrNull(DATE_COLUMN) ?: "",
+            totalValue = columns.getOrNull(4) ?: "",
+            quotaValue = columns.getOrNull(QUOTA_VALUE) ?: "",
+            netAssetValue = columns.getOrNull(6) ?: "",
+            dailyCaptation = columns.getOrNull(7) ?: "",
+            dailyRedemption = columns.getOrNull(8) ?: "",
+            numberOfShareholders = columns.getOrNull(9) ?: ""
+        )
+
 
     private fun competenceDate(columns: List<String>): LocalDate? =
         columns.getOrNull(DATE_COLUMN)?.let { runCatching { it.fromYYYYMMDDToLocalDate() }.getOrNull() }
