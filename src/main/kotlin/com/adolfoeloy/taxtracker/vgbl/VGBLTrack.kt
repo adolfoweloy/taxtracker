@@ -13,6 +13,9 @@ import jakarta.persistence.Table
 import java.math.BigDecimal
 import java.time.LocalDate
 
+/**
+ * TODO: This entity could be called VGBL Transaction because it tracks my transactions on a given fund acquired or redeemed.
+ */
 @Entity
 @Table(name = "vgbl_track")
 class VGBLTrack {
