@@ -3,6 +3,7 @@ package com.adolfoeloy.taxtracker.vgbl
 import com.adolfoeloy.taxtracker.forex.ForexService
 import com.adolfoeloy.taxtracker.util.fromStringToBigDecimal
 import com.adolfoeloy.taxtracker.util.fromYYYYMMDDToLocalDate
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -20,6 +21,8 @@ class VGBLFundService(
     private val vgblFundRepository: VGBLFundRepository,
     private val forexService: ForexService,
 ) {
+
+    private val log = LoggerFactory.getLogger(VGBLFundService::class.java)
 
     /**
      * Stores one day's quota value, **replacing** whatever is already held for that
@@ -75,6 +78,9 @@ class VGBLFundService(
         end: LocalDate,
         currency: String
     ): List<VGBLMonthIncome> {
+        log.info("Fetching income for the period from $start to $end")
+
+        // query using month previous from the selected one, in order to get both income and previous income values
         return vgblFundRepository.getIncomeDifferenceByCompetenceDate(
             cnpj = cnpj,
             startDate = previousMonth(start),

@@ -1,6 +1,8 @@
 package com.adolfoeloy.taxtracker.vgbl
 
-import com.adolfoeloy.taxtracker.util.fromYearMonthString
+import com.adolfoeloy.taxtracker.util.firstDayFromYearMonth
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
@@ -16,6 +18,7 @@ class VGBLSummaryPageController(
     private val vgblFundRepository: VGBLFundRepository,
     private val vgblFundService: VGBLFundService
 ) {
+    private val log: Logger = LoggerFactory.getLogger(VGBLSummaryPageController::class.java)
 
     @GetMapping
     fun summaryPage(model: Model): String {
@@ -39,11 +42,12 @@ class VGBLSummaryPageController(
 
         val summaries = cnpjsList.mapNotNull { cnpj ->
             val fund = vgblFundRepository.findById(cnpj).orElse(null) ?: return@mapNotNull null
+            log.info("Fetching income data for ${fund.fundName} for the period from $normalizedFrom to $normalizedTo")
 
             val incomeData = vgblFundService.getIncomeDataForPeriod(
                 cnpj = cnpj,
-                start = normalizedFrom.fromYearMonthString(),
-                end = normalizedTo.fromYearMonthString(),
+                start = normalizedFrom.firstDayFromYearMonth(),
+                end = normalizedTo.firstDayFromYearMonth(),
                 currency = currency
             )
 
