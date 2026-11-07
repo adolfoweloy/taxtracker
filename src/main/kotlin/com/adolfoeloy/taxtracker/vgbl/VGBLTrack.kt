@@ -28,6 +28,9 @@ class VGBLTrack {
     @JoinColumn(name = "cnpj")
     var vgblFund: VGBLFund? = null
 
+    /**
+     * Total amount of quotas held
+     */
     @Column(precision = 27, scale = 12)
     var quotas: BigDecimal = BigDecimal.ZERO
 
@@ -38,12 +41,22 @@ class VGBLTrack {
     @Column(name = "transaction_type")
     var transactionType: VGBLTransactionType = VGBLTransactionType.CONTRIBUTION
 
+    /**
+     * This represents the amount of money contributed or redeemed.
+     */
     @Column(name = "amount", precision = 27, scale = 12)
     var amount: BigDecimal = BigDecimal.ZERO
 
+    /**
+     * Quota price according to CVM investment funds daily info website:
+     * https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/
+     */
     @Column(name = "quota_price", precision = 27, scale = 12)
     var quotaPrice: BigDecimal = BigDecimal.ZERO
 
+    /**
+     * Total tax withhold in Brazil
+     */
     @Column(name = "br_tax", precision = 27, scale = 12)
     var brTax: BigDecimal = BigDecimal.ZERO
 
