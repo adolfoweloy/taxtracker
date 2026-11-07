@@ -24,11 +24,11 @@ interface CsvCvmFundData {
      * fund can happen at any date, and having only the latest date limits how the redemption can
      * be taken into account for a complete report summary.
      *
-     * @param cnpj The CNPJ of the fund to load data for.
+     * @param cnpjs The list of CNPJs of the funds to load data for.
      * @param inputStream The input stream to load the CSV data from.
      * @return A list of CvmFundData object containing the loaded data.
      */
-    fun loadAllFrom(cnpj: String, inputStream: InputStream): List<CvmFundData>
+    fun loadAllFrom(cnpjs: List<String>, inputStream: InputStream): List<CvmFundData>
 }
 
 @Component
@@ -61,13 +61,13 @@ class CsvCvmFundDataImpl : CsvCvmFundData {
     }
 
     override fun loadAllFrom(
-        cnpj: String,
+        cnpjs: List<String>,
         inputStream: InputStream
     ): List<CvmFundData> {
         return BufferedReader(InputStreamReader(inputStream)).useLines { lines ->
             lines
                 .map { it.split(';') }
-                .filter { it.getOrNull(CNPJ_COLUMN) == cnpj }
+                .filter { it.getOrNull(CNPJ_COLUMN).let { cnpjs.contains(it) } }
                 .map { columns -> createCvmFundData(columns) }
                 .toList()
         }

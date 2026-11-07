@@ -116,7 +116,7 @@ class CsvCvmFundDataImplTest {
             val file = File(this::class.java.getResource(resourcePath)?.file
                 ?: throw IllegalStateException("Resource file not found"))
 
-            val result = subject.loadAllFrom("26.756.416/0001-28", file.inputStream())
+            val result = subject.loadAllFrom(listOf("26.756.416/0001-28"), file.inputStream())
 
             fun data(date: String, total: String, quota: String, nav: String, captation: String, redemption: String) =
                 CvmFundData(
@@ -168,7 +168,7 @@ class CsvCvmFundDataImplTest {
                 row(OTHER_CNPJ, "2024-04-30", "9.800000000000")
             )
 
-            val result = subject.loadAllFrom(CNPJ, csv)
+            val result = subject.loadAllFrom(listOf(CNPJ), csv)
 
             assertThat(result)
                 .extracting<String> { it.cnpj }
