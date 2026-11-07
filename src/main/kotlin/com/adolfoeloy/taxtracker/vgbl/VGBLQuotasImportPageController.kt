@@ -39,7 +39,7 @@ class VGBLQuotasImportPageController(
         val errors = mutableListOf<String>()
 
         for (cnpj in cnpjsList) {
-            val cvmFundData = csvCvmFundData.loadFrom(cnpj, file.inputStream)
+            val cvmFundData = csvCvmFundData.loadLatestFrom(cnpj, file.inputStream)
 
             if (cvmFundData == null) {
                 errors.add("CVM fund data not found for CNPJ: $cnpj")

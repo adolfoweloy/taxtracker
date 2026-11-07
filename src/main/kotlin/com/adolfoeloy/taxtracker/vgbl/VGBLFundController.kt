@@ -84,7 +84,7 @@ class VGBLFundController(
         val result = VGBLImportResult()
 
         for (cnpj in cnpjsList) {
-            val cvmFundData = csvCvmFundData.loadFrom(cnpj, file.inputStream)
+            val cvmFundData = csvCvmFundData.loadLatestFrom(cnpj, file.inputStream)
 
             if (cvmFundData == null) {
                 result.errors.add(VGBLErrorResult(

@@ -15,7 +15,7 @@ interface CsvCvmFundData {
      * @param inputStream The input stream to load the CSV data from.
      * @return A DailyFundData object containing the loaded data.
      */
-    fun loadFrom(cnpj: String, inputStream: InputStream): CvmFundData?
+    fun loadLatestFrom(cnpj: String, inputStream: InputStream): CvmFundData?
 
 }
 
@@ -32,7 +32,7 @@ class CsvCvmFundDataImpl : CsvCvmFundData {
      * month's value. Rows whose date cannot be parsed are ignored, so a change in CVM's date
      * format surfaces as "no data found" rather than as a plausible-looking wrong row.
      */
-    override fun loadFrom(cnpj: String, inputStream: InputStream): CvmFundData? {
+    override fun loadLatestFrom(cnpj: String, inputStream: InputStream): CvmFundData? {
         val latest = BufferedReader(InputStreamReader(inputStream)).useLines { lines ->
             lines
                 .map { it.split(';') }

@@ -14,7 +14,7 @@ class CsvCvmFundDataImplTest {
         val file = File(this::class.java.getResource(resourcePath)?.file
             ?: throw IllegalStateException("Resource file not found"))
 
-        val cvmFundData = subject.loadFrom("26.756.416/0001-28", file.inputStream())
+        val cvmFundData = subject.loadLatestFrom("26.756.416/0001-28", file.inputStream())
 
         val expected = CvmFundData(
             fundType = "CLASSES - FIF",
@@ -42,7 +42,7 @@ class CsvCvmFundDataImplTest {
             row(CNPJ, "2024-04-29", "1.300000000000")
         )
 
-        val result = subject.loadFrom(CNPJ, csv)
+        val result = subject.loadLatestFrom(CNPJ, csv)
 
         assertThat(result?.date).isEqualTo("2024-04-30")
         assertThat(result?.quotaValue).isEqualTo("1.400000000000")
@@ -55,7 +55,7 @@ class CsvCvmFundDataImplTest {
             row(CNPJ, "2024-04-30", "1.400000000000")
         )
 
-        val result = subject.loadFrom(CNPJ, csv)
+        val result = subject.loadLatestFrom(CNPJ, csv)
 
         assertThat(result?.date).isEqualTo("2024-05-31")
     }
@@ -67,7 +67,7 @@ class CsvCvmFundDataImplTest {
             row(OTHER_CNPJ, "2024-04-30", "9.900000000000")
         )
 
-        val result = subject.loadFrom(CNPJ, csv)
+        val result = subject.loadLatestFrom(CNPJ, csv)
 
         assertThat(result?.date).isEqualTo("2024-04-29")
         assertThat(result?.quotaValue).isEqualTo("1.300000000000")
@@ -77,7 +77,7 @@ class CsvCvmFundDataImplTest {
     fun `should return null when the fund is absent`() {
         val csv = csvOf(row(OTHER_CNPJ, "2024-04-30", "9.900000000000"))
 
-        assertThat(subject.loadFrom(CNPJ, csv)).isNull()
+        assertThat(subject.loadLatestFrom(CNPJ, csv)).isNull()
     }
 
     @Test
@@ -88,7 +88,7 @@ class CsvCvmFundDataImplTest {
             row(CNPJ, "29/04/2024", "1.300000000000")
         )
 
-        assertThat(subject.loadFrom(CNPJ, csv)).isNull()
+        assertThat(subject.loadLatestFrom(CNPJ, csv)).isNull()
     }
 
     @Test
@@ -98,7 +98,7 @@ class CsvCvmFundDataImplTest {
             row(CNPJ, "not-a-date", "9.900000000000")
         )
 
-        val result = subject.loadFrom(CNPJ, csv)
+        val result = subject.loadLatestFrom(CNPJ, csv)
 
         assertThat(result?.date).isEqualTo("2024-04-29")
     }
