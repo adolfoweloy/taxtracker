@@ -12,14 +12,19 @@
 
 select * from vgbl_track where cnpj = '26.756.416/0001-28';
 
-select * from vgbl_quota 
+select distinct on (date_trunc('month', competence_date)) competence_date, cnpj
+from vgbl_quota 
+where cnpj = '26.756.416/0001-28' 
+and competence_date between '2025-11-01' and '2025-11-28'
+order by date_trunc('month', competence_date) desc;
+
+select competence_date, cnpj
+from vgbl_quota 
 where cnpj = '26.756.416/0001-28' 
 and competence_date between '2025-11-01' and '2025-11-28'
 order by competence_date desc;
 
-
 select * from fund;
-
 
 
 
@@ -129,14 +134,6 @@ SELECT
     END AS trend
 FROM monthly_interest
 ORDER BY month_year;
-
-
-select * from forex;
---update balance set br_au_forex = 271244;
---update transaction set br_au_forex = 271244;
-
-----------------------------------------------------------------------------------
--- get total interest since begining
 
 
 
