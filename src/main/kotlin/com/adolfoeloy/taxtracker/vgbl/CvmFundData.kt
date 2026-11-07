@@ -13,10 +13,22 @@ interface CsvCvmFundData {
      *
      * @param cnpj The CNPJ of the fund to load data for.
      * @param inputStream The input stream to load the CSV data from.
-     * @return A DailyFundData object containing the loaded data.
+     * @return A CvmFundData object containing the loaded data.
+     * @deprecated should use the loadAllFrom
      */
     fun loadLatestFrom(cnpj: String, inputStream: InputStream): CvmFundData?
 
+    /**
+     * Loads CVM fund data from a CSV file. This function differs from {@code loadLatestFrom}
+     * because it loads all data for a given fund. That makes sense because a redemption of a given
+     * fund can happen at any date, and having only the latest date limits how the redemption can
+     * be taken into account for a complete report summary.
+     *
+     * @param cnpj The CNPJ of the fund to load data for.
+     * @param inputStream The input stream to load the CSV data from.
+     * @return A list of CvmFundData object containing the loaded data.
+     */
+    fun loadAllFrom(cnpj: String, inputStream: InputStream): List<CvmFundData>
 }
 
 @Component
@@ -31,6 +43,8 @@ class CsvCvmFundDataImpl : CsvCvmFundData {
      * day with no error, and since only one day per fund is ever stored, a wrong day becomes the
      * month's value. Rows whose date cannot be parsed are ignored, so a change in CVM's date
      * format surfaces as "no data found" rather than as a plausible-looking wrong row.
+     *
+     * @deprecated
      */
     override fun loadLatestFrom(cnpj: String, inputStream: InputStream): CvmFundData? {
         val latest = BufferedReader(InputStreamReader(inputStream)).useLines { lines ->
@@ -59,6 +73,31 @@ class CsvCvmFundDataImpl : CsvCvmFundData {
         }
     }
 
+    override fun loadAllFrom(
+        cnpj: String,
+        inputStream: InputStream
+    ): List<CvmFundData> {
+        return BufferedReader(InputStreamReader(inputStream)).useLines { lines ->
+            lines
+                .map { it.split(';') }
+                .filter { it.getOrNull(CNPJ_COLUMN) == cnpj }
+                .map { columns -> CvmFundData(
+                        fundType = columns.getOrNull(0) ?: "",
+                        cnpj = columns.getOrNull(CNPJ_COLUMN) ?: "",
+                        subclassId = columns.getOrNull(2) ?: "",
+                        date = columns.getOrNull(DATE_COLUMN) ?: "",
+                        totalValue = columns.getOrNull(4) ?: "",
+                        quotaValue = columns.getOrNull(QUOTA_VALUE) ?: "",
+                        netAssetValue = columns.getOrNull(6) ?: "",
+                        dailyCaptation = columns.getOrNull(7) ?: "",
+                        dailyRedemption = columns.getOrNull(8) ?: "",
+                        numberOfShareholders = columns.getOrNull(9) ?: ""
+                    )
+                }
+                .toList()
+        }
+    }
+
     private fun competenceDate(columns: List<String>): LocalDate? =
         columns.getOrNull(DATE_COLUMN)?.let { runCatching { it.fromYYYYMMDDToLocalDate() }.getOrNull() }
 
@@ -68,6 +107,7 @@ class CsvCvmFundDataImpl : CsvCvmFundData {
     private companion object {
         const val CNPJ_COLUMN = 1   // CNPJ_FUNDO_CLASSE
         const val DATE_COLUMN = 3   // DT_COMPTC
+        const val QUOTA_VALUE = 5   // VL_QUOTA
     }
 }
 
