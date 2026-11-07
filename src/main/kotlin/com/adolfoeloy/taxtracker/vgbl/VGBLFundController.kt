@@ -1,6 +1,6 @@
 package com.adolfoeloy.taxtracker.vgbl
 
-import com.adolfoeloy.taxtracker.util.fromYearMonthString
+import com.adolfoeloy.taxtracker.util.firstDayFromYearMonth
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -36,8 +36,8 @@ class VGBLFundController(
 
         val incomeDataForPeriod = vgblFundService.getIncomeDataForPeriod(
             cnpj = vgblFundRequest.cnpj,
-            start = vgblFundRequest.startYearMonth.fromYearMonthString(),
-            end = vgblFundRequest.endYearMonth.fromYearMonthString(),
+            start = vgblFundRequest.startYearMonth.firstDayFromYearMonth(),
+            end = vgblFundRequest.endYearMonth.firstDayFromYearMonth(),
             currency = vgblFundRequest.currency ?: "BRL"
         )
 
@@ -49,8 +49,8 @@ class VGBLFundController(
 
         val incomeDataForPeriod = vgblFundService.getIncomeDataForPeriod(
             cnpj = vgblFundRequest.cnpj,
-            start = vgblFundRequest.startYearMonth.fromYearMonthString(),
-            end = vgblFundRequest.endYearMonth.fromYearMonthString(),
+            start = vgblFundRequest.startYearMonth.firstDayFromYearMonth(),
+            end = vgblFundRequest.endYearMonth.firstDayFromYearMonth(),
             currency = vgblFundRequest.currency ?: "BRL"
         )
 

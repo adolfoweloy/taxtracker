@@ -7,7 +7,7 @@ fun LocalDate.toYearMonthString(): String {
     return "${this.year}$month"
 }
 
-fun String.fromYearMonthString(): LocalDate {
+fun String.firstDayFromYearMonth(): LocalDate {
     val year = this.substring(0, 4).toInt()
     val month = this.substring(4, 6).toInt()
     return LocalDate.of(year, month, 1)

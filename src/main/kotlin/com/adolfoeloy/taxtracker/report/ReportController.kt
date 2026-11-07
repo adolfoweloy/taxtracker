@@ -1,6 +1,6 @@
 package com.adolfoeloy.taxtracker.report
 
-import com.adolfoeloy.taxtracker.util.fromYearMonthString
+import com.adolfoeloy.taxtracker.util.firstDayFromYearMonth
 import com.adolfoeloy.taxtracker.util.lastDay
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
@@ -97,8 +97,8 @@ class ReportController(
         to: String,
         currency: String,
     ): String {
-        val start = from.fromYearMonthString()
-        val end = to.fromYearMonthString().lastDay()
+        val start = from.firstDayFromYearMonth()
+        val end = to.firstDayFromYearMonth().lastDay()
 
         val taxReport = reportService.getTaxReportData(
             start = start,

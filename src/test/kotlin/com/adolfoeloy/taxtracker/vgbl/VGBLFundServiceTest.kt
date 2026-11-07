@@ -3,7 +3,7 @@ package com.adolfoeloy.taxtracker.vgbl
 import com.adolfoeloy.taxtracker.forex.ForexService
 import com.adolfoeloy.taxtracker.util.fromStringToBigDecimal
 import com.adolfoeloy.taxtracker.util.fromYYYYMMDDToLocalDate
-import com.adolfoeloy.taxtracker.util.fromYearMonthString
+import com.adolfoeloy.taxtracker.util.firstDayFromYearMonth
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -130,8 +130,8 @@ class VGBLFundServiceTest {
 
     @Test
     fun `base month should return December when end month is January`() {
-        val result = subject.previousMonth("202401".fromYearMonthString())
-        assertThat(result).isEqualTo("202312".fromYearMonthString())
+        val result = subject.previousMonth("202401".firstDayFromYearMonth())
+        assertThat(result).isEqualTo("202312".firstDayFromYearMonth())
     }
 
     @Test

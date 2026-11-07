@@ -4,7 +4,7 @@ import com.adolfoeloy.taxtracker.fixture.FundMother
 import com.adolfoeloy.taxtracker.fixture.VGBLQuotaMother
 import com.adolfoeloy.taxtracker.fixture.VGBLTrackMother
 import com.adolfoeloy.taxtracker.util.fromYYYYMMDDToLocalDate
-import com.adolfoeloy.taxtracker.util.fromYearMonthString
+import com.adolfoeloy.taxtracker.util.firstDayFromYearMonth
 import com.adolfoeloy.taxtracker.vgbl.VGBLFund
 import com.adolfoeloy.taxtracker.vgbl.VGBLFundRepository
 import com.adolfoeloy.taxtracker.vgbl.VGBLQuotaRepository
@@ -69,8 +69,8 @@ class VGBLFundRepositoryIT : AbstractDatabaseIntegrationTest() {
         // When: Querying incomes for August to October period
         val result = vgblFundRepository.getIncomeDifferenceByCompetenceDate(
             cnpj = fundCnpj,
-            startDate = "202407".fromYearMonthString(),
-            endDate = "202410".fromYearMonthString()
+            startDate = "202407".firstDayFromYearMonth(),
+            endDate = "202410".firstDayFromYearMonth()
         )
 
         // Then: Should return 3 months with calculated income differences
@@ -135,8 +135,8 @@ class VGBLFundRepositoryIT : AbstractDatabaseIntegrationTest() {
         // When: Querying incomes for July to September
         val result = vgblFundRepository.getIncomeDifferenceByCompetenceDate(
             cnpj = fundCnpj,
-            startDate = "202407".fromYearMonthString(),
-            endDate = "202409".fromYearMonthString()
+            startDate = "202407".firstDayFromYearMonth(),
+            endDate = "202409".firstDayFromYearMonth()
         )
 
         assertThat(result).hasSize(2)
