@@ -18,8 +18,11 @@ class VGBLTrackService(
 
         return track
             .filter { track -> track.transactionDate <= date }
-            .map { track -> track.quotas }
+            .map { track -> factor(track).times(track.quotas) }
             .reduce { acc, quotas -> acc.plus(quotas) }
     }
+
+    private fun factor(track: VGBLTrack) =
+        if (track.transactionType == VGBLTransactionType.REDEMPTION) BigDecimal.ONE.negate() else BigDecimal.ONE
 
 }

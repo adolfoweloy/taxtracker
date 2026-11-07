@@ -75,7 +75,7 @@ class VGBLTrackServiceTest {
             fund: VGBLFund
         ): List<VGBLTrack> = listOf(
             contribution(fund, BigDecimal.TEN, LocalDate.of(2022, 10, 1), BigDecimal.valueOf(20_000)),
-            redemption(fund, BigDecimal.TEN.negate(), LocalDate.of(2025, 10, 1), BigDecimal.valueOf(25_000))
+            redemption(fund, BigDecimal.TEN, LocalDate.of(2025, 10, 1), BigDecimal.valueOf(25_000))
         )
 
         fun contribution(
