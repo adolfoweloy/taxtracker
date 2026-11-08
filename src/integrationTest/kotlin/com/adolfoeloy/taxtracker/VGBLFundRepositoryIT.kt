@@ -154,6 +154,62 @@ class VGBLFundRepositoryIT : AbstractDatabaseIntegrationTest() {
         assertThat(august.income).isEqualTo("1500.000000000000".toBigDecimal() * "1.350000000000".toBigDecimal())
     }
 
+    @Test
+    fun `should end the exit month on the redemption valuation date priced with the quotas held before it`() {
+        // Given: A fund fully redeemed on 11-04, the date its redemption was valued at.
+        val fundCnpj = "22.333.444/0001-55"
+        val fund = FundMother.createFund(fundCnpj, "1000.000000000000".toBigDecimal())
+        vgblFundRepository.save(fund)
+
+        vgblTrackRepository.save(
+            VGBLTrackMother.createContribution(
+                vgblFund = fund,
+                quotas = "1000.000000000000".toBigDecimal(),
+                amount = "1000.00".toBigDecimal(),
+                quotaPrice = "1.000000000000".toBigDecimal(),
+                transactionDate = "2024-06-01".fromYYYYMMDDToLocalDate()
+            )
+        )
+        vgblTrackRepository.save(
+            VGBLTrackMother.createRedemption(
+                vgblFund = fund,
+                quotas = "1000.000000000000".toBigDecimal(),
+                amount = "1330.69".toBigDecimal(),
+                quotaPrice = "1.330691300000".toBigDecimal(),
+                transactionDate = "2024-11-04".fromYYYYMMDDToLocalDate(),
+                fullRedemption = true
+            )
+        )
+
+        // And: Quota rows before, on and after the valuation date.
+        val quotaBuilder = VGBLQuotaMother.withVGBLFund(fund)
+        val quotas = listOf(
+            createQuota(quotaBuilder, "1.333202300000", "2024-10-31"),
+            createQuota(quotaBuilder, "1.333937308600", "2024-11-03"),
+            createQuota(quotaBuilder, "1.330691300000", "2024-11-04"),
+            createQuota(quotaBuilder, "1.334469301700", "2024-11-06"),
+            createQuota(quotaBuilder, "1.358048300000", "2024-11-28")
+        )
+        quotas.forEach { vgblQuotaRepository.save(it) }
+
+        // When: Querying a window that extends past the exit.
+        val result = vgblFundRepository.getIncomeDifferenceByCompetenceDate(
+            cnpj = fundCnpj,
+            startDate = "202410".firstDayFromYearMonth(),
+            endDate = "202412".firstDayFromYearMonth()
+        )
+
+        // Then: November ends on the valuation date itself, not on the day before or after it.
+        assertThat(result).hasSize(2)
+
+        val november = result[1]
+        assertThat(november.competenceDate).isEqualTo("2024-11-04".fromYYYYMMDDToLocalDate())
+
+        // And: It is priced with the 1000 quotas held before that day's redemption, not with zero.
+        assertThat(november.income).isEqualTo("1000.000000000000".toBigDecimal() * "1.330691300000".toBigDecimal())
+        assertThat(november.previousIncome).isEqualTo("1000.000000000000".toBigDecimal() * "1.333202300000".toBigDecimal())
+    }
+
     private fun createQuota(
         quotaBuilder: VGBLQuotaMother.VGBLFundQuotaBuilder,
         quotaValue: String,

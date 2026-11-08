@@ -25,5 +25,24 @@ class VGBLTrackMother {
                 this.transactionType = VGBLTransactionType.CONTRIBUTION
             }
         }
+
+        fun createRedemption(
+            vgblFund: VGBLFund,
+            quotas: BigDecimal,
+            amount: BigDecimal,
+            quotaPrice: BigDecimal,
+            transactionDate: LocalDate = LocalDate.now(),
+            fullRedemption: Boolean = false,
+        ): VGBLTrack {
+            return VGBLTrack().apply {
+                this.vgblFund = vgblFund
+                this.quotas = quotas
+                this.amount = amount
+                this.quotaPrice = quotaPrice
+                this.transactionDate = transactionDate
+                this.transactionType = VGBLTransactionType.REDEMPTION
+                this.fullRedemption = fullRedemption
+            }
+        }
     }
 }

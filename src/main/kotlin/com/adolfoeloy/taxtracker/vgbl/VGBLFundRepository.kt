@@ -22,6 +22,7 @@ interface VGBLFundRepository : JpaRepository<VGBLFund, String> {
                 SELECT
                     cnpj,
                     transaction_date,
+                    transaction_type,
                     SUM(
                         CASE transaction_type
                             WHEN 'CONTRIBUTION' THEN quotas
@@ -43,7 +44,10 @@ interface VGBLFundRepository : JpaRepository<VGBLFund, String> {
                             (
                                 SELECT qb.quotas_held
                                 FROM quota_balance qb
-                                WHERE qb.transaction_date <= vq.competence_date
+                                -- a redemption is valued on its own date, so that day is still
+                                -- priced with the quotas held before it
+                                WHERE qb.transaction_date < vq.competence_date
+                                   OR (qb.transaction_date = vq.competence_date AND qb.transaction_type = 'CONTRIBUTION')
                                 ORDER BY qb.transaction_date DESC
                                 LIMIT 1
                             ),
@@ -55,16 +59,9 @@ interface VGBLFundRepository : JpaRepository<VGBLFund, String> {
                 LEFT JOIN redemption r ON r.cnpj = f.cnpj
                 WHERE f.cnpj = :cnpj
                 AND vq.competence_date >= :startDate
-                AND CASE
-                    WHEN EXISTS (
-                        SELECT 1 
-                        FROM redemption r 
-                        WHERE r.cnpj = vq.cnpj 
-                        AND r.transaction_date <= vq.competence_date
-                    )
-                    THEN vq.competence_date < r.transaction_date
-                    ELSE vq.competence_date < :endDate
-                END
+                AND vq.competence_date < :endDate
+                -- the redemption date is its valuation date, the last day the fund was held
+                AND (r.transaction_date IS NULL OR vq.competence_date <= r.transaction_date)
                 ORDER BY DATE_TRUNC('month', vq.competence_date), vq.competence_date DESC
             )
             SELECT
