@@ -210,6 +210,82 @@ class VGBLFundRepositoryIT : AbstractDatabaseIntegrationTest() {
         assertThat(november.previousIncome).isEqualTo("1000.000000000000".toBigDecimal() * "1.333202300000".toBigDecimal())
     }
 
+    @Test
+    fun `should report the money moved by partial redemptions as net flow between pricing dates`() {
+        // Given: 1000 quotas, redeemed 10% in November, 40% in early December and the rest on 12-20.
+        val fundCnpj = "33.444.555/0001-66"
+        val fund = FundMother.createFund(fundCnpj, "1000.000000000000".toBigDecimal())
+        vgblFundRepository.save(fund)
+
+        val trackRows = listOf(
+            VGBLTrackMother.createContribution(
+                vgblFund = fund,
+                quotas = "1000.000000000000".toBigDecimal(),
+                amount = "1000.00".toBigDecimal(),
+                quotaPrice = "1.000000000000".toBigDecimal(),
+                transactionDate = "2024-06-01".fromYYYYMMDDToLocalDate()
+            ),
+            VGBLTrackMother.createRedemption(
+                vgblFund = fund,
+                quotas = "100.000000000000".toBigDecimal(),
+                amount = "102.00".toBigDecimal(),
+                quotaPrice = "1.020000000000".toBigDecimal(),
+                transactionDate = "2024-11-10".fromYYYYMMDDToLocalDate()
+            ),
+            VGBLTrackMother.createRedemption(
+                vgblFund = fund,
+                quotas = "400.000000000000".toBigDecimal(),
+                amount = "424.00".toBigDecimal(),
+                quotaPrice = "1.060000000000".toBigDecimal(),
+                transactionDate = "2024-12-05".fromYYYYMMDDToLocalDate()
+            ),
+            VGBLTrackMother.createRedemption(
+                vgblFund = fund,
+                quotas = "500.000000000000".toBigDecimal(),
+                amount = "540.00".toBigDecimal(),
+                quotaPrice = "1.080000000000".toBigDecimal(),
+                transactionDate = "2024-12-20".fromYYYYMMDDToLocalDate(),
+                fullRedemption = true
+            )
+        )
+        trackRows.forEach { vgblTrackRepository.save(it) }
+
+        val quotaBuilder = VGBLQuotaMother.withVGBLFund(fund)
+        val quotas = listOf(
+            createQuota(quotaBuilder, "1.000000000000", "2024-10-31"),
+            createQuota(quotaBuilder, "1.020000000000", "2024-11-10"),
+            createQuota(quotaBuilder, "1.050000000000", "2024-11-28"),
+            createQuota(quotaBuilder, "1.060000000000", "2024-12-05"),
+            createQuota(quotaBuilder, "1.080000000000", "2024-12-20"),
+            createQuota(quotaBuilder, "1.090000000000", "2024-12-31")
+        )
+        quotas.forEach { vgblQuotaRepository.save(it) }
+
+        // When
+        val result = vgblFundRepository.getIncomeDifferenceByCompetenceDate(
+            cnpj = fundCnpj,
+            startDate = "202410".firstDayFromYearMonth(),
+            endDate = "202501".firstDayFromYearMonth()
+        )
+
+        // Then: the anchor month has nothing to measure a flow against.
+        assertThat(result).hasSize(3)
+        assertThat(result[0].netFlow).isEqualByComparingTo("0")
+
+        // And: November is priced with the 900 quotas left and carries the 11-10 redemption.
+        val november = result[1]
+        assertThat(november.competenceDate).isEqualTo("2024-11-28".fromYYYYMMDDToLocalDate())
+        assertThat(november.income).isEqualByComparingTo("945")
+        assertThat(november.netFlow).isEqualByComparingTo("102")
+
+        // And: December ends on the full redemption, priced with the 500 quotas held before it,
+        // and carries only the 12-05 redemption — the 12-20 one is not yet out of the balance.
+        val december = result[2]
+        assertThat(december.competenceDate).isEqualTo("2024-12-20".fromYYYYMMDDToLocalDate())
+        assertThat(december.income).isEqualByComparingTo("540")
+        assertThat(december.netFlow).isEqualByComparingTo("424")
+    }
+
     private fun createQuota(
         quotaBuilder: VGBLQuotaMother.VGBLFundQuotaBuilder,
         quotaValue: String,

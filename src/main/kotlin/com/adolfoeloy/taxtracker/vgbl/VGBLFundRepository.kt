@@ -63,13 +63,43 @@ interface VGBLFundRepository : JpaRepository<VGBLFund, String> {
                 -- the redemption date is its valuation date, the last day the fund was held
                 AND (r.transaction_date IS NULL OR vq.competence_date <= r.transaction_date)
                 ORDER BY DATE_TRUNC('month', vq.competence_date), vq.competence_date DESC
+            ),
+            priced AS (
+                SELECT
+                    competence_date,
+                    income,
+                    LAG(income) OVER w AS previous_income,
+                    LAG(competence_date) OVER w AS previous_date
+                FROM monthly_income
+                WINDOW w AS (ORDER BY competence_date)
             )
             SELECT
-                competence_date,
-                income,
-                LAG(income) OVER (ORDER BY competence_date) AS previous_income
-            FROM monthly_income
-            ORDER BY competence_date
+                p.competence_date,
+                p.income,
+                p.previous_income,
+                -- money that moved the quota count between the two pricing dates, so it is not
+                -- mistaken for income: a redemption counts from the day after it, a contribution
+                -- from its own day, matching how quota_balance is looked up above
+                COALESCE((
+                    SELECT SUM(
+                        CASE t.transaction_type
+                            WHEN 'REDEMPTION' THEN t.amount
+                            WHEN 'CONTRIBUTION' THEN -t.amount
+                        END
+                    )
+                    FROM vgbl_track t
+                    WHERE t.cnpj = :cnpj
+                    AND (
+                        (t.transaction_type = 'REDEMPTION'
+                            AND t.transaction_date >= p.previous_date
+                            AND t.transaction_date < p.competence_date)
+                        OR (t.transaction_type = 'CONTRIBUTION'
+                            AND t.transaction_date > p.previous_date
+                            AND t.transaction_date <= p.competence_date)
+                    )
+                ), 0) AS net_flow
+            FROM priced p
+            ORDER BY p.competence_date
         """,
         nativeQuery = true
     )
@@ -87,4 +117,10 @@ interface IncomeDifference {
 
     /** Null for the first row of the window: `LAG` has nothing to look back at. */
     val previousIncome: BigDecimal?
+
+    /**
+     * Redemptions minus contributions between the previous row's date and this one. Zero for the
+     * first row, which has no previous date to measure from.
+     */
+    val netFlow: BigDecimal
 }

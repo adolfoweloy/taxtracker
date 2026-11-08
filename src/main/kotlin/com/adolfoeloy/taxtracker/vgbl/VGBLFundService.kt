@@ -103,12 +103,15 @@ class VGBLFundService(
             val rawPreviousIncome = it.previousIncome!!
             val income = if (currency != "BRL") forexService.applyForexRateFor(it.income, it.competenceDate, currency) else it.income
             val previousIncome = if (currency != "BRL") forexService.applyForexRateFor(rawPreviousIncome, it.competenceDate, currency) else rawPreviousIncome
+            val netFlow = if (currency != "BRL") forexService.applyForexRateFor(it.netFlow, it.competenceDate, currency) else it.netFlow
 
             VGBLMonthIncome(
                 competenceDate = it.competenceDate.toString(),
                 income = income,
                 previousIncome = previousIncome,
-                incomeDifference = income.minus(previousIncome),
+                // money redeemed during the month left the balance without being a loss, and money
+                // contributed joined it without being a gain
+                incomeDifference = income.minus(previousIncome).plus(netFlow),
                 fundsReturnPercent = if (previousIncome.signum() == 0) null else income
                     .minus(previousIncome)
                     .divide(previousIncome, 12, RoundingMode.HALF_EVEN)

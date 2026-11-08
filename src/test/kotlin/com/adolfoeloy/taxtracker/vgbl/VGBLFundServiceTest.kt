@@ -270,6 +270,25 @@ class VGBLFundServiceTest {
     }
 
     @Test
+    fun `should add back money redeemed during the month instead of counting it as a loss`() {
+        // 1000 quotas; 100 redeemed for 102 in November, 400 redeemed for 424 in December.
+        givenIncomeDifferences(
+            SAMPLE_CNPJ,
+            incomeDifference("2024-11-28", income = "945.00", previousIncome = "1000.00", netFlow = "102.00"),
+            incomeDifference("2024-12-20", income = "540.00", previousIncome = "945.00", netFlow = "424.00")
+        )
+
+        val result = subject.getIncomeDataForPeriod(
+            cnpj = SAMPLE_CNPJ,
+            start = LocalDate.of(2024, 11, 1),
+            end = LocalDate.of(2025, 1, 1),
+            currency = "BRL"
+        )
+
+        assertThat(result.map { it.incomeDifference }).containsExactly("47.00".toBigDecimal(), "19.00".toBigDecimal())
+    }
+
+    @Test
     fun `should query the FY window from July to the following July exclusive`() {
         givenFund(TRUXT_CNPJ)
         givenIncomeDifferences(TRUXT_CNPJ)
@@ -370,11 +389,17 @@ class VGBLFundServiceTest {
         ).thenReturn(rows.toList())
     }
 
-    private fun incomeDifference(competenceDate: String, income: String, previousIncome: String?) =
+    private fun incomeDifference(
+        competenceDate: String,
+        income: String,
+        previousIncome: String?,
+        netFlow: String = "0"
+    ) =
         object : IncomeDifference {
             override val competenceDate: LocalDate = competenceDate.fromYYYYMMDDToLocalDate()
             override val income: BigDecimal = income.toBigDecimal()
             override val previousIncome: BigDecimal? = previousIncome?.toBigDecimal()
+            override val netFlow: BigDecimal = netFlow.toBigDecimal()
         }
 
     private companion object {
