@@ -11,6 +11,7 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlin.jvm.optionals.getOrNull
 
 // the whole plan is, to import all data from CVM
 // with data imported, create a service that will fetch the quotas and calculate the interest and taxes
@@ -23,6 +24,13 @@ class VGBLFundService(
 ) {
 
     private val log = LoggerFactory.getLogger(VGBLFundService::class.java)
+
+    fun findFundBy(cnpj: String): FundSummary? {
+        return vgblFundRepository
+            .findById(cnpj)
+            .map { it -> FundSummary(it.cnpj, it.fundName) }
+            .getOrNull()
+    }
 
     /**
      * Stores one day's quota value, **replacing** whatever is already held for that

@@ -17,6 +17,21 @@
 
     <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
 
+    <div th:if="${summary != null}" class="mb-4">
+        <div th:if="${summary.successful}" class="alert alert-success mb-3">
+            <strong>Import completed.</strong>
+            <span th:text="|${summary.rowsImported} rows stored for ${summary.fundsImported} of ${summary.fundsRequested} funds.|"></span>
+            <span th:if="${summary.rowsReplaced > 0}"
+                  th:text="|${summary.rowsReplaced} already stored with a different quota value and were replaced.|"></span>
+        </div>
+        <div th:unless="${summary.successful}" class="alert alert-danger mb-3">
+            <strong>Import failed. Nothing was stored.</strong>
+            <ul class="mb-0">
+                <li th:each="error : ${summary.errors}" th:text="${error}"></li>
+            </ul>
+        </div>
+    </div>
+
     <form id="import-form" method="POST" th:action="@{/import/inf-diario-fi}" enctype="multipart/form-data" class="mb-4">
         <input type="hidden" id="cnpjs-input" name="cnpjs"/>
 
@@ -28,7 +43,7 @@
             <div class="form-check" th:each="fund : ${funds}">
                 <input class="form-check-input fund-checkbox" type="checkbox"
                        th:value="${fund.cnpj}" th:id="'fund-' + ${fund.cnpj}"
-                       th:checked="${fund.hasQuotas}"/>
+                       th:checked="${fund.selected}"/>
                 <label class="form-check-label" th:for="'fund-' + ${fund.cnpj}"
                        th:text="${fund.fundName + ' (' + fund.cnpj + ')'}"></label>
             </div>
@@ -45,14 +60,44 @@
 
         <div class="d-flex align-items-end gap-3">
             <div>
-                <input type="file" id="file-input" name="file" class="form-control" accept=".csv" required/>
+                <input type="file" id="file-input" name="file" class="form-control" accept=".csv,.zip" required/>
             </div>
             <div>
                 <label class="form-label mb-1">&nbsp;</label>
-                <button type="submit" class="btn btn-primary d-block">Import</button>
+                <div class="d-flex align-items-center gap-2">
+                    <button type="submit" id="import-button" class="btn btn-primary">Import</button>
+                    <span id="import-spinner" class="spinner-border spinner-border-sm text-primary d-none"
+                          role="status" aria-label="Importing"></span>
+                </div>
             </div>
         </div>
     </form>
+
+    <table th:if="${summary != null && !#lists.isEmpty(summary.funds)}" class="report-table">
+        <thead>
+        <tr>
+            <th scope="col">Fund Name</th>
+            <th scope="col">CNPJ</th>
+            <th scope="col">Rows</th>
+            <th scope="col">Replaced</th>
+            <th scope="col">From</th>
+            <th scope="col">To</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="fund : ${summary.funds}">
+            <td th:text="${fund.fundName}"></td>
+            <td th:text="${fund.cnpj}"></td>
+            <td th:text="${fund.rows}"></td>
+            <td>
+                <span th:if="${fund.replaced > 0}" class="badge bg-warning text-dark" th:text="${fund.replaced}"></span>
+                <span th:if="${fund.replaced == 0}" class="text-muted">0</span>
+            </td>
+            <td th:text="${fund.from}"></td>
+            <td th:text="${fund.to}"></td>
+        </tr>
+        </tbody>
+    </table>
 
     <script>
         document.getElementById('import-form').addEventListener('submit', function (e) {
@@ -64,6 +109,15 @@
             }
             var cnpjs = Array.prototype.map.call(checkboxes, function (cb) { return cb.value; });
             document.getElementById('cnpjs-input').value = cnpjs.join(',');
+
+            document.getElementById('import-button').disabled = true;
+            document.getElementById('import-spinner').classList.remove('d-none');
+        });
+
+        // coming back with the browser's back button restores the page as it was left, i.e. still loading
+        window.addEventListener('pageshow', function () {
+            document.getElementById('import-button').disabled = false;
+            document.getElementById('import-spinner').classList.add('d-none');
         });
     </script>
 </section>
