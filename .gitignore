@@ -45,3 +45,6 @@ __pycache__/
 
 ### Environment ###
 .env
+
+### Notebooks ###
+notebooks/
