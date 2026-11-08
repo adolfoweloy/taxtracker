@@ -156,7 +156,7 @@ class CsvCvmFundDataImplTest {
                 data("2025-08-29", "42574256.30", "1.300695300000", "42548186.57", "406.74", "136058.63")
             )
 
-            assertThat(result).containsExactlyElementsOf(expected)
+            assertThat(result["26.756.416/0001-28"]).containsExactlyElementsOf(expected)
         }
 
         @Test
@@ -170,10 +170,9 @@ class CsvCvmFundDataImplTest {
 
             val result = subject.loadAllFrom(listOf(CNPJ), csv)
 
-            assertThat(result)
-                .extracting<String> { it.cnpj }
+            assertThat(result.keys)
                 .containsOnly(CNPJ)
-            assertThat(result)
+            assertThat(result[CNPJ])
                 .extracting<String> { it.date }
                 .containsExactly("2024-04-29", "2024-04-30")
         }

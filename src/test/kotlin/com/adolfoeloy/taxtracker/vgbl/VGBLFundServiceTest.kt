@@ -292,6 +292,25 @@ class VGBLFundServiceTest {
     }
 
     @Test
+    fun `should find a registered fund by CNPJ as a summary`() {
+        val fund = VGBLFund().apply {
+            cnpj = "26.756.416/0001-28"
+            fundName = "BRADESCO TRUXT MACRO FICFIM PGBL/VGBL"
+        }
+        whenever(vgblFundRepositoryMock.findById("26.756.416/0001-28")).thenReturn(Optional.of(fund))
+
+        assertThat(subject.findFundBy("26.756.416/0001-28"))
+            .isEqualTo(FundSummary("26.756.416/0001-28", "BRADESCO TRUXT MACRO FICFIM PGBL/VGBL"))
+    }
+
+    @Test
+    fun `should not find a fund by a CNPJ that is not registered`() {
+        whenever(vgblFundRepositoryMock.findById("00.000.000/0001-00")).thenReturn(Optional.empty())
+
+        assertThat(subject.findFundBy("00.000.000/0001-00")).isNull()
+    }
+
+    @Test
     fun `available financial years should exclude a FY with no anchor row before it`() {
         // 2024-06-28 is the anchor for FY25; on its own it cannot produce a FY24 report.
         whenever(vgblQuotaRepositoryMock.findDistinctCompetenceDates()).thenReturn(
