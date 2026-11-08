@@ -52,8 +52,12 @@ docker-compose up -d
 - **Australian Financial Year:** July–June. Reports group by FY accordingly.
 - **Flyway migrations:** Schema managed in `src/main/resources/db/migration/` (V001–V006).
 - **Thymeleaf layout dialect:** `layout.html` is the master template with sidebar navigation. Views extend it.
-- **VGBL income is priced with quotas held as of each competence date, not a static count:** `VGBLFundRepository`'s query used to multiply every month by `fund.quotas`, a single snapshot of the current holding, which is only correct when the holding never changed within the queried period. A running balance is now derived from `vgbl_track` (signed cumulative sum of contributions and redemptions ordered by transaction date) and matched to each competence date, so a partial contribution or redemption mid-period reprices only the months from that point on. `fund.quotas` is kept as a fallback for a competence date with no preceding `vgbl_track` row, so funds without full track history behave as before.
-- **A redemption's `vgbl_track.transaction_date` is its valuation date, not its credit date:** the bank values a redemption on the day the request is formalised but credits it several business days later. The valuation date is the one whose quota prices the redemption, so it is what gets recorded: it is the only date whose quota reproduces the gross on the bank's redemption statement. `VGBLFundRepository`'s query treats that date as the last day the fund was held: the cutoff is inclusive, and the running quota balance only counts a redemption from the day after, so the exit day is priced with the quotas held before it rather than zero. `DISTINCT ON` keeps the latest surviving row of each month, so the valuation date's quota row must exist or the exit month falls back to an earlier row. Post-exit rows need no cleanup: the cutoff already ignores them.
+- **VGBL income uses quotas held on each pricing day, plus net flow:** quotas held come from `vgbl_track`, with `fund.quotas` only as a fallback, and money moved by contributions and redemptions is not counted as income. See `docs/vgbl/income-calculation.md`.
+- **A redemption's `vgbl_track.transaction_date` is its valuation date, not its credit date:** the exit month ends on it, priced with the quotas held before the redemption. See `docs/vgbl/redemption-dates.md`.
+
+### Documentation
+
+`docs/` explains the app's calculations for humans; `docs/README.md` is the index. When changing logic described there, update its page in the same commit. Examples in `docs/` use made-up numbers only.
 
 ### Testing
 
