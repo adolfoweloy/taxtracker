@@ -42,7 +42,7 @@ To load the database from pg_dump, find the latest dump and run the following co
 docker exec -i tax-tracker-db psql -U postgres -d tax_tracker < /path/to/your/dump.sql
 ```
 
-**Latest dump**: `taxtracker_full_dump_20260809.sql`
+**Latest dump**: `taxtracker_full_dump_20261108.sql`
 
 #### Troubleshooting: can't connect to PostgreSQL with NordVPN on
 
