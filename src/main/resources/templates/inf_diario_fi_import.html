@@ -99,7 +99,60 @@
         </tbody>
     </table>
 
+    <hr class="my-4"/>
+
+    <h2 class="h5 mb-3">Search Quotas</h2>
+
+    <div th:if="${searchError}" class="alert alert-danger" th:text="${searchError}"></div>
+
+    <form id="search-form" method="GET" th:action="@{/import/inf-diario-fi}" class="mb-4">
+        <div class="d-flex align-items-end gap-3">
+            <div>
+                <label for="search-cnpj-input" class="form-label mb-1">Fund</label>
+                <select id="search-cnpj-input" name="searchCnpj" class="form-select" required>
+                    <option th:each="fund : ${funds}" th:value="${fund.cnpj}"
+                            th:selected="${fund.cnpj == searchCnpj}"
+                            th:text="${fund.fundName + ' (' + fund.cnpj + ')'}"></option>
+                </select>
+            </div>
+            <div>
+                <label for="search-month-input" class="form-label mb-1">Month</label>
+                <input type="text" id="search-month-input" name="searchMonth" class="form-control" readonly
+                       th:value="${searchMonth}" required/>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </div>
+    </form>
+
+    <table th:if="${quotas != null}" class="report-table">
+        <thead>
+        <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Quota (BRL)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="quota : ${quotas}">
+            <td th:text="${quota.date}"></td>
+            <td th:text="${quota.quotaValue}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(quotas)}">
+            <td colspan="2">No quotas stored for this fund in the selected month.</td>
+        </tr>
+        </tbody>
+    </table>
+
     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            $('#search-month-input').datepicker({
+                format: 'yyyy-mm',
+                minViewMode: 'months',
+                autoclose: true
+            });
+        });
+
         document.getElementById('import-form').addEventListener('submit', function (e) {
             var checkboxes = document.querySelectorAll('.fund-checkbox:checked');
             if (checkboxes.length === 0) {

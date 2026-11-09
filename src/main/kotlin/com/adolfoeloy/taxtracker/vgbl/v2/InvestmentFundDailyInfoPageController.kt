@@ -12,17 +12,23 @@ import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
 @Controller
 @RequestMapping("/import/inf-diario-fi")
 class InvestmentFundDailyInfoPageController(
     private val vgblHoldingService: VGBLHoldingService,
-    private val investmentFundDailyImportService: InvestmentFundDailyImportService
+    private val investmentFundDailyImportService: InvestmentFundDailyImportService,
+    private val investmentFundDailyInfoRepository: InvestmentFundDailyInfoRepository
 ) {
 
     @GetMapping
-    fun importPage(model: Model): String {
+    fun importPage(
+        @RequestParam("searchCnpj", required = false) searchCnpj: String?,
+        @RequestParam("searchMonth", required = false) searchMonth: String?,
+        model: Model
+    ): String {
         // flashed by the previous import, so the same funds stay selected for the next one
         val selectedCnpjs = (model.asMap()["selectedCnpjs"] as? List<*>)?.filterIsInstance<String>()?.toSet()
 
@@ -30,9 +36,30 @@ class InvestmentFundDailyInfoPageController(
             .map { mapFundsPresentation(it, selectedCnpjs) }
 
         model.addAttribute("funds", funds)
+        model.addAttribute("searchCnpj", searchCnpj)
+        model.addAttribute("searchMonth", searchMonth)
+
+        if (!searchCnpj.isNullOrBlank() && !searchMonth.isNullOrBlank()) {
+            val month = runCatching { YearMonth.parse(searchMonth) }.getOrNull()
+            if (month == null) {
+                model.addAttribute("searchError", "Invalid month: $searchMonth. Use the yyyy-mm format.")
+            } else {
+                model.addAttribute("quotas", searchQuotas(searchCnpj, month))
+            }
+        }
 
         return "inf_diario_fi_import"
     }
+
+    private fun searchQuotas(cnpj: String, month: YearMonth): List<QuotaView> =
+        investmentFundDailyInfoRepository
+            .findByIdCnpjAndIdCompetenceDateBetweenOrderByIdCompetenceDate(cnpj, month.atDay(1), month.atEndOfMonth())
+            .map {
+                QuotaView(
+                    date = it.id.competenceDate.format(dateFormatter),
+                    quotaValue = it.quotaValue.stripTrailingZeros().toPlainString()
+                )
+            }
 
     @PostMapping
     fun doImport(
@@ -103,6 +130,11 @@ class InvestmentFundDailyInfoPageController(
         /** Rows that already held a different quota value, so corrections are visible. */
         val rowsReplaced: Int,
         val funds: List<FundImportView>
+    )
+
+    data class QuotaView(
+        val date: String,
+        val quotaValue: String
     )
 
     data class FundImportView(
